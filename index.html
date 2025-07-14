@@ -270,9 +270,7 @@
         <thead>
           <tr>
             <th>序号</th>
-
             <th>班级</th>
-
             <th>总分</th>
             <th>总分排名</th>
             <th>语文</th>
@@ -341,7 +339,7 @@
       ["高一四班", 382, 90.5, 44, 33.5, 67.5, 77.5, 69],
       ["高一四班", 358.5, 79.5, 52, 39, 69, 68.5, 50.5]
     ];
-    
+
 
     // 处理数据并计算排名
     function processData() {
@@ -447,7 +445,7 @@
       });
     }
 
-    
+
     function showStats() {
       const data = processData();
       const maxTotal = Math.max(...data.map(d => d.total));
@@ -468,7 +466,7 @@
       document.getElementById('maxGeography').textContent = maxGeography;
       document.getElementById('avgTotal').textContent = avgTotal;
     }
-    
+
     // 初始化显示数据
     displayData();
     showStats()
