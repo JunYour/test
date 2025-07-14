@@ -230,7 +230,7 @@
   <div class="container">
     <h1>📊 铜仁市2025年7月高一年级成绩排名表</h1>
 
-  <div class="stats-container" id="statsContainer">
+    <div class="stats-container" id="statsContainer">
       <div class="stat-card">
         <div class="stat-title">总分最高</div>
         <div class="stat-value" id="maxTotal">-</div>
@@ -292,54 +292,56 @@
       </table>
     </div>
 
-    
+
   </div>
 
   <script>
     // 原始数据
     const rawData = [
-  ["班级四", 391, 81, 53.5, 64, 67, 61.5, 64],
-  ["班级四", 368.5, 95, 59, 35.5, 39, 82, 58],
-  ["班级四", 452, 98.5, 65.5, 68.5, 76, 70.5, 73],
-  ["班级四", 345.5, 88.5, 53, 32.5, 49.5, 54, 68],
-  ["班级四", 453, 102, 77, 46.5, 72, 74.5, 81],
-  ["班级四", 431, 84, 66.5, 73, 59.5, 77.5, 70.5],
-  ["班级四", 363, 76, 46, 53, 43.5, 69.5, 75],
-  ["班级四", 408, 88, 79, 60.5, 58, 65.5, 57],
-  ["班级四", 391.5, 79, 77, 51.5, 59, 60, 65],
-  ["班级四", 326, 76.5, 57, 50.5, 51, 46, 45],
-  ["班级四", 396, 88, 81, 35.5, 50, 76.5, 65],
-  ["班级四", 333.5, 80, 67, 38.5, 50.5, 45, 52.5],
-  ["班级四", 389.5, 84.5, 43.5, 63, 61, 67.5, 70],
-  ["班级四", 359, 84, 37, 51, 57, 82, 48],
-  ["班级四", 441, 91.5, 90.5, 87.5, 74.5, 31, 66],
-  ["班级四", 408.5, 98, 73, 35.5, 60, 68, 74],
-  ["班级四", 423.5, 89.5, 70, 66, 49.5, 73, 75.5],
-  ["班级四", 364.5, 77.5, 59, 33, 65, 61.5, 68.5],
-  ["班级四", 399, 95, 78.5, 36.5, 67, 59, 63],
-  ["班级四", 332.5, 69.5, 42.5, 46, 64, 44.5, 66],
-  ["班级四", 376.75, 85.75, 67.5, 32.5, 39, 76, 76],
-  ["班级四", 381, 92.5, 63, 57.5, 55, 52.5, 60.5],
-  ["班级四", 360, 93, 40.5, 50, 72, 46, 58.5],
-  ["班级四", 375.5, 79.5, 52, 38.5, 70.5, 66, 69],
-  ["班级四", 355, 86.5, 74.5, 30.5, 37, 47.5, 79],
-  ["班级四", 406.5, 65.5, 70, 65.5, 71.5, 58, 76],
-  ["班级四", 382, 95.5, 53, 39, 60.5, 72, 62],
-  ["班级四", 444.5, 84, 89.5, 51, 71.5, 78.5, 70],
-  ["班级四", 405, 86.5, 66, 54, 61.5, 66, 71],
-  ["班级四", 358, 78.5, 47, 58.5, 59, 53, 62],
-  ["班级四", 416.25, 93.75, 67.5, 55.5, 65.5, 68, 66],
-  ["班级四", 371.5, 87, 64.5, 34.5, 72.5, 51, 62],
-  ["班级四", 349, 70, 54, 40, 61, 63.5, 60.5],
-  ["班级四", 337.5, 81, 16, 44.5, 51, 70.5, 74.5],
-  ["班级四", 363, 79.5, 76, 21.5, 57.5, 65, 63.5],
-  ["班级四", 309.5, 75.5, 47, 35, 53, 50, 49],
-  ["班级四", 369, 83.5, 40.5, 45.5, 61, 73.5, 65],
-  ["班级四", 408, 96.5, 80, 45, 55.5, 79, 52],
-  ["班级四", 382, 90.5, 44, 33.5, 67.5, 77.5, 69],
-  ["班级四", 358.5, 79.5, 52, 39, 69, 68.5, 50.5]
-];
-showStats()
+      ["班级四", 391, 81, 53.5, 64, 67, 61.5, 64],
+      ["班级四", 368.5, 95, 59, 35.5, 39, 82, 58],
+      ["班级四", 452, 98.5, 65.5, 68.5, 76, 70.5, 73],
+      ["班级四", 345.5, 88.5, 53, 32.5, 49.5, 54, 68],
+      ["班级四", 453, 102, 77, 46.5, 72, 74.5, 81],
+      ["班级四", 431, 84, 66.5, 73, 59.5, 77.5, 70.5],
+      ["班级四", 363, 76, 46, 53, 43.5, 69.5, 75],
+      ["班级四", 408, 88, 79, 60.5, 58, 65.5, 57],
+      ["班级四", 391.5, 79, 77, 51.5, 59, 60, 65],
+      ["班级四", 326, 76.5, 57, 50.5, 51, 46, 45],
+      ["班级四", 396, 88, 81, 35.5, 50, 76.5, 65],
+      ["班级四", 333.5, 80, 67, 38.5, 50.5, 45, 52.5],
+      ["班级四", 389.5, 84.5, 43.5, 63, 61, 67.5, 70],
+      ["班级四", 359, 84, 37, 51, 57, 82, 48],
+      ["班级四", 441, 91.5, 90.5, 87.5, 74.5, 31, 66],
+      ["班级四", 408.5, 98, 73, 35.5, 60, 68, 74],
+      ["班级四", 423.5, 89.5, 70, 66, 49.5, 73, 75.5],
+      ["班级四", 364.5, 77.5, 59, 33, 65, 61.5, 68.5],
+      ["班级四", 399, 95, 78.5, 36.5, 67, 59, 63],
+      ["班级四", 332.5, 69.5, 42.5, 46, 64, 44.5, 66],
+      ["班级四", 376.75, 85.75, 67.5, 32.5, 39, 76, 76],
+      ["班级四", 381, 92.5, 63, 57.5, 55, 52.5, 60.5],
+      ["班级四", 360, 93, 40.5, 50, 72, 46, 58.5],
+      ["班级四", 375.5, 79.5, 52, 38.5, 70.5, 66, 69],
+      ["班级四", 355, 86.5, 74.5, 30.5, 37, 47.5, 79],
+      ["班级四", 406.5, 65.5, 70, 65.5, 71.5, 58, 76],
+      ["班级四", 382, 95.5, 53, 39, 60.5, 72, 62],
+      ["班级四", 444.5, 84, 89.5, 51, 71.5, 78.5, 70],
+      ["班级四", 405, 86.5, 66, 54, 61.5, 66, 71],
+      ["班级四", 358, 78.5, 47, 58.5, 59, 53, 62],
+      ["班级四", 416.25, 93.75, 67.5, 55.5, 65.5, 68, 66],
+      ["班级四", 371.5, 87, 64.5, 34.5, 72.5, 51, 62],
+      ["班级四", 349, 70, 54, 40, 61, 63.5, 60.5],
+      ["班级四", 337.5, 81, 16, 44.5, 51, 70.5, 74.5],
+      ["班级四", 363, 79.5, 76, 21.5, 57.5, 65, 63.5],
+      ["班级四", 309.5, 75.5, 47, 35, 53, 50, 49],
+      ["班级四", 369, 83.5, 40.5, 45.5, 61, 73.5, 65],
+      ["班级四", 408, 96.5, 80, 45, 55.5, 79, 52],
+      ["班级四", 382, 90.5, 44, 33.5, 67.5, 77.5, 69],
+      ["班级四", 358.5, 79.5, 52, 39, 69, 68.5, 50.5]
+    ];
+    showStats()
+
+
     // 处理数据并计算排名
     function processData() {
       const data = rawData.map((row, index) => ({
@@ -564,31 +566,23 @@ showStats()
 
     function showStats() {
       const data = processData();
-      const statsContainer = document.getElementById('statsContainer');
+      const maxTotal = Math.max(...data.map(d => d.total));
+      const maxChinese = Math.max(...data.map(d => d.chinese));
+      const maxMath = Math.max(...data.map(d => d.math));
+      const maxEnglish = Math.max(...data.map(d => d.english));
+      const maxPolitics = Math.max(...data.map(d => d.politics));
+      const maxHistory = Math.max(...data.map(d => d.history));
+      const maxGeography = Math.max(...data.map(d => d.geography));
+      const avgTotal = (data.reduce((sum, d) => sum + d.total, 0) / data.length).toFixed(1);
 
-      if (statsContainer.style.display === 'none') {
-        const maxTotal = Math.max(...data.map(d => d.total));
-        const maxChinese = Math.max(...data.map(d => d.chinese));
-        const maxMath = Math.max(...data.map(d => d.math));
-        const maxEnglish = Math.max(...data.map(d => d.english));
-        const maxPolitics = Math.max(...data.map(d => d.politics));
-        const maxHistory = Math.max(...data.map(d => d.history));
-        const maxGeography = Math.max(...data.map(d => d.geography));
-        const avgTotal = (data.reduce((sum, d) => sum + d.total, 0) / data.length).toFixed(1);
-
-        document.getElementById('maxTotal').textContent = maxTotal;
-        document.getElementById('maxChinese').textContent = maxChinese;
-        document.getElementById('maxMath').textContent = maxMath;
-        document.getElementById('maxEnglish').textContent = maxEnglish;
-        document.getElementById('maxPolitics').textContent = maxPolitics;
-        document.getElementById('maxHistory').textContent = maxHistory;
-        document.getElementById('maxGeography').textContent = maxGeography;
-        document.getElementById('avgTotal').textContent = avgTotal;
-
-        statsContainer.style.display = 'grid';
-      } else {
-        statsContainer.style.display = 'none';
-      }
+      document.getElementById('maxTotal').textContent = maxTotal;
+      document.getElementById('maxChinese').textContent = maxChinese;
+      document.getElementById('maxMath').textContent = maxMath;
+      document.getElementById('maxEnglish').textContent = maxEnglish;
+      document.getElementById('maxPolitics').textContent = maxPolitics;
+      document.getElementById('maxHistory').textContent = maxHistory;
+      document.getElementById('maxGeography').textContent = maxGeography;
+      document.getElementById('avgTotal').textContent = avgTotal;
     }
 
     // 添加CSV下载功能作为备选
