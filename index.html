@@ -341,8 +341,7 @@
       ["高一四班", 382, 90.5, 44, 33.5, 67.5, 77.5, 69],
       ["高一四班", 358.5, 79.5, 52, 39, 69, 68.5, 50.5]
     ];
-    showStats()
-
+    
 
     // 处理数据并计算排名
     function processData() {
@@ -350,7 +349,6 @@
         id: index, // 添加唯一标识
         class: row[0],
         total: row[1],
-
         chinese: row[2],
         math: row[3],
         english: row[4],
@@ -431,7 +429,6 @@
                     <td>${index + 1}</td>
                     <td>${row.class}</td>
                     <td>${row.total}</td>
-                  
                     <td class="${getRankClass(row.totalRank)}">${row.totalRank}</td>
                     <td>${row.chinese}</td>
                     <td class="${getRankClass(row.chineseRank)}">${row.chineseRank}</td>
@@ -450,124 +447,7 @@
       });
     }
 
-    function downloadExcel() {
-      try {
-        // 检查XLSX库是否加载
-        if (typeof XLSX === 'undefined') {
-          alert('Excel库未加载，请刷新页面重试');
-          return;
-        }
-
-        const data = processData();
-        // 按总分排序
-        const sortedData = [...data].sort((a, b) => b.total - a.total);
-        const ws_data = [
-          ['名次', '班级', '总分', '总分排名', '语文', '语文排名', '数学', '数学排名', '英语', '英语排名', '政治', '政治排名', '历史', '历史排名', '地理', '地理排名']
-        ];
-
-        sortedData.forEach((row, index) => {
-          ws_data.push([
-            index + 1,
-            row.class,
-            row.total,
-            row.totalRank,
-            row.chinese,
-            row.chineseRank,
-            row.math,
-            row.mathRank,
-            row.english,
-            row.englishRank,
-            row.politics,
-            row.politicsRank,
-            row.history,
-            row.historyRank,
-            row.geography,
-            row.geographyRank
-          ]);
-        });
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-        // 设置列宽
-        ws['!cols'] = [
-          { wch: 8 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
-          { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
-          { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }
-        ];
-
-        XLSX.utils.book_append_sheet(wb, ws, "成绩排名表");
-
-        // 多种下载方式兼容
-        const fileName = "铜仁市2025年7月高一年级成绩排名表.xlsx";
-
-        // 方式1：标准下载
-        try {
-          XLSX.writeFile(wb, fileName);
-          showMessage('Excel文件下载成功！', 'success');
-        } catch (e) {
-          // 方式2：手动触发下载
-          const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-          const blob = new Blob([s2ab(wbout)], { type: "application/octet-stream" });
-          saveAs(blob, fileName);
-        }
-
-      } catch (error) {
-        console.error('下载失败:', error);
-        showMessage('下载失败，请检查浏览器兼容性', 'error');
-      }
-    }
-
-    // 辅助函数：字符串转ArrayBuffer
-    function s2ab(s) {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
-    }
-
-    // 辅助函数：手动保存文件
-    function saveAs(blob, filename) {
-      const link = document.createElement('a');
-      if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        showMessage('Excel文件下载成功！', 'success');
-      } else {
-        showMessage('您的浏览器不支持直接下载，请使用较新版本的浏览器', 'error');
-      }
-    }
-
-    // 显示消息提示
-    function showMessage(message, type) {
-      const messageDiv = document.createElement('div');
-      messageDiv.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                padding: 15px 25px;
-                border-radius: 8px;
-                color: white;
-                font-weight: bold;
-                z-index: 9999;
-                text-align: center;
-                ${type === 'success' ? 'background: #4CAF50;' : 'background: #f44336;'}
-            `;
-      messageDiv.textContent = message;
-      document.body.appendChild(messageDiv);
-
-      setTimeout(() => {
-        document.body.removeChild(messageDiv);
-      }, 3000);
-    }
-
+    
     function showStats() {
       const data = processData();
       const maxTotal = Math.max(...data.map(d => d.total));
@@ -588,44 +468,11 @@
       document.getElementById('maxGeography').textContent = maxGeography;
       document.getElementById('avgTotal').textContent = avgTotal;
     }
-
-    // 添加CSV下载功能作为备选
-    function downloadCSV() {
-      try {
-        const data = processData();
-        const sortedData = [...data].sort((a, b) => b.total - a.total);
-
-        let csvContent = "名次,班级,总分,总分排名,语文,语文排名,数学,数学排名,英语,英语排名,政治,政治排名,历史,历史排名,地理,地理排名\n";
-
-        sortedData.forEach((row, index) => {
-          csvContent += `${index + 1},${row.class},${row.total},${row.totalRank},${row.chinese},${row.chineseRank},${row.math},${row.mathRank},${row.english},${row.englishRank},${row.politics},${row.politicsRank},${row.history},${row.historyRank},${row.geography},${row.geographyRank}\n`;
-        });
-
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const fileName = "铜仁市2025年7月高一年级成绩排名表.csv";
-
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-          const url = URL.createObjectURL(blob);
-          link.setAttribute('href', url);
-          link.setAttribute('download', fileName);
-          link.style.visibility = 'hidden';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          showMessage('CSV文件下载成功！', 'success');
-        } else {
-          showMessage('您的浏览器不支持下载功能', 'error');
-        }
-      } catch (error) {
-        console.error('CSV下载失败:', error);
-        showMessage('CSV下载失败', 'error');
-      }
-    }
-
+    
     // 初始化显示数据
     displayData();
+    showStats()
+
   </script>
 </body>
 
