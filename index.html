@@ -230,40 +230,7 @@
   <div class="container">
     <h1>📊 铜仁市2025年7月高一年级成绩排名表</h1>
 
-    <div class="button-container">
-      <button onclick="downloadExcel()">📥 下载Excel文件</button>
-      <button onclick="downloadCSV()">📋 下载CSV文件</button>
-      <button onclick="showStats()">📈 显示统计信息</button>
-    </div>
-
-    <div class="table-container">
-      <table id="rankingTable">
-        <thead>
-          <tr>
-            <th>名次</th>
-            <th>班级</th>
-            <th>总分</th>
-            <th>总分排名</th>
-            <th>语文</th>
-            <th>语文排名</th>
-            <th>数学</th>
-            <th>数学排名</th>
-            <th>英语</th>
-            <th>英语排名</th>
-            <th>政治</th>
-            <th>政治排名</th>
-            <th>历史</th>
-            <th>历史排名</th>
-            <th>地理</th>
-            <th>地理排名</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-      </table>
-    </div>
-
-    <div class="stats-container" id="statsContainer" style="display: none;">
+  <div class="stats-container" id="statsContainer">
       <div class="stat-card">
         <div class="stat-title">总分最高</div>
         <div class="stat-value" id="maxTotal">-</div>
@@ -297,6 +264,35 @@
         <div class="stat-value" id="avgTotal">-</div>
       </div>
     </div>
+
+    <div class="table-container">
+      <table id="rankingTable">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>班级</th>
+            <th>总分</th>
+            <th>总分排名</th>
+            <th>语文</th>
+            <th>语文排名</th>
+            <th>数学</th>
+            <th>数学排名</th>
+            <th>英语</th>
+            <th>英语排名</th>
+            <th>政治</th>
+            <th>政治排名</th>
+            <th>历史</th>
+            <th>历史排名</th>
+            <th>地理</th>
+            <th>地理排名</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+
+    
   </div>
 
   <script>
@@ -343,7 +339,7 @@
   ["班级四", 382, 90.5, 44, 33.5, 67.5, 77.5, 69],
   ["班级四", 358.5, 79.5, 52, 39, 69, 68.5, 50.5]
 ];
-
+showStats()
     // 处理数据并计算排名
     function processData() {
       const data = rawData.map((row, index) => ({
