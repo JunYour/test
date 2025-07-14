@@ -425,7 +425,7 @@
       sortedData.forEach((row, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-                    <td class="${getRankClass(index + 1)}">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${row.class}</td>
                     <td>${row.total}</td>
                     <td class="${getRankClass(row.totalRank)}">${row.totalRank}</td>
