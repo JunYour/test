@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>成绩排名表</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      margin: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+      margin: 5px;
+      min-width: 120px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      min-width: 1200px;
+    }
+
+    th,
+    td {
+      padding: 8px 6px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+    }
+
+    th {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    tr:hover {
+      background-color: #e3f2fd;
+      transform: scale(1.01);
+      transition: all 0.2s ease;
+    }
+
+    .rank-1 {
+      color: #ff6b35;
+      font-weight: bold;
+    }
+
+    .rank-2 {
+      color: #f7931e;
+      font-weight: bold;
+    }
+
+    .rank-3 {
+      color: #ffcd3c;
+      font-weight: bold;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(45deg, #ff6b35, #f7931e);
+      color: white;
+      padding: 15px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-title {
+      font-size: 1em;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+        margin: 5px;
+      }
+
+      h1 {
+        font-size: 1.2em;
+        margin-bottom: 15px;
+      }
+
+      button {
+        padding: 10px 15px;
+        font-size: 12px;
+        margin: 3px;
+        min-width: 100px;
+      }
+
+      th,
+      td {
+        padding: 6px 4px;
+        font-size: 10px;
+      }
+
+      .table-container {
+        font-size: 12px;
+      }
+
+      .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 12px;
+      }
+
+      .stat-title {
+        font-size: 0.9em;
+      }
+
+      .stat-value {
+        font-size: 1.3em;
+      }
+    }
+
+    /* 小屏幕适配 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 8px;
+        margin: 2px;
+      }
+
+      h1 {
+        font-size: 1.1em;
+      }
+
+      button {
+        padding: 8px 12px;
+        font-size: 11px;
+        min-width: 80px;
+      }
+
+      th,
+      td {
+        padding: 4px 2px;
+        font-size: 9px;
+      }
+
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>📊 铜仁市2025年7月高一年级成绩排名表</h1>
+
+    <div class="button-container">
+      <button onclick="downloadExcel()">📥 下载Excel文件</button>
+      <button onclick="downloadCSV()">📋 下载CSV文件</button>
+      <button onclick="showStats()">📈 显示统计信息</button>
+    </div>
+
+    <div class="table-container">
+      <table id="rankingTable">
+        <thead>
+          <tr>
+            <th>名次</th>
+            <th>班级</th>
+            <th>总分</th>
+            <th>总分排名</th>
+            <th>语文</th>
+            <th>语文排名</th>
+            <th>数学</th>
+            <th>数学排名</th>
+            <th>英语</th>
+            <th>英语排名</th>
+            <th>政治</th>
+            <th>政治排名</th>
+            <th>历史</th>
+            <th>历史排名</th>
+            <th>地理</th>
+            <th>地理排名</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stats-container" id="statsContainer" style="display: none;">
+      <div class="stat-card">
+        <div class="stat-title">总分最高</div>
+        <div class="stat-value" id="maxTotal">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">语文最高</div>
+        <div class="stat-value" id="maxChinese">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">数学最高</div>
+        <div class="stat-value" id="maxMath">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">英语最高</div>
+        <div class="stat-value" id="maxEnglish">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">政治最高</div>
+        <div class="stat-value" id="maxPolitics">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">历史最高</div>
+        <div class="stat-value" id="maxHistory">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">地理最高</div>
+        <div class="stat-value" id="maxGeography">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">平均总分</div>
+        <div class="stat-value" id="avgTotal">-</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 原始数据
+    const rawData = [
+      [4, 391, 81, 53.5, 64, 67, 61.5, 64],
+      [4, 368.5, 95, 59, 35.5, 39, 82, 58],
+      [4, 452, 98.5, 65.5, 68.5, 76, 70.5, 73],
+      [4, 345.5, 88.5, 53, 32.5, 49.5, 54, 68],
+      [4, 453, 102, 77, 46.5, 72, 74.5, 81],
+      [4, 431, 84, 66.5, 73, 59.5, 77.5, 70.5],
+      [4, 424, 76, 48, 53, 43.5, 69.5, 75],
+      [4, 408, 88, 79, 60.5, 58, 65.5, 57],
+      [4, 391.5, 79, 77, 51.5, 59, 60, 65],
+      [4, 326, 76.5, 57, 50.5, 51, 46, 45],
+      [4, 396, 88, 81, 35.5, 50, 76.5, 65],
+      [4, 333.5, 80, 67, 38.5, 50.5, 45, 52.5],
+      [4, 389.5, 84.5, 43.5, 63, 61, 67.5, 70],
+      [4, 359, 84, 37, 51, 57, 82, 48],
+      [4, 441, 91.5, 90.5, 87.5, 74.5, 31, 66],
+      [4, 408.5, 98, 73, 35.5, 60, 68, 74],
+      [4, 423.5, 89.5, 70, 66, 49.5, 73, 75.5],
+      [4, 364.5, 77.5, 59, 33, 65, 61.5, 68.5],
+      [4, 399, 95, 78.5, 36.5, 67, 59, 63],
+      [4, 332.5, 69.5, 42.5, 46, 64, 44.5, 66],
+      [4, 376.75, 85.75, 67.5, 32.5, 39, 76, 76],
+      [4, 381, 92.5, 63, 57.5, 55, 52.5, 60.5],
+      [4, 360, 93, 40.5, 50, 72, 46, 58.5],
+      [4, 376.5, 79.5, 52, 38.5, 70.5, 66, 69],
+      [4, 355, 86.5, 74.5, 30.5, 37, 47.5, 79],
+      [4, 406.5, 65.5, 70, 65.5, 71.5, 58, 76],
+      [4, 382, 95.5, 53, 39, 60.5, 72, 62],
+      [4, 444.5, 84, 89.5, 51, 71.5, 78.5, 70],
+      [4, 405, 86.5, 66, 54, 61.5, 66, 71],
+      [4, 358, 73.5, 47, 58.5, 59, 53, 62],
+      [4, 416.25, 93.75, 67.5, 55.5, 65.5, 68, 66],
+      [4, 371.5, 87, 64.5, 34.5, 72.5, 51, 62],
+      [4, 349, 70, 54, 40, 61, 63.5, 60.5],
+      [4, 337.5, 81, 16, 44.5, 51, 70.5, 74.5],
+      [4, 383, 79.5, 76, 21.5, 57.5, 65, 63.5],
+      [4, 308.5, 75.5, 47, 35, 53, 50, 48],
+      [4, 369, 83.5, 40.5, 45.5, 61, 73.5, 65],
+      [4, 408, 96.5, 80, 45, 55.5, 79, 52],
+      [4, 382, 90.5, 44, 33.5, 67.5, 77.5, 69],
+      [4, 358.5, 79.5, 52, 39, 69, 68.5, 50.5]
+    ];
+
+    // 处理数据并计算排名
+    function processData() {
+      const data = rawData.map((row, index) => ({
+        id: index, // 添加唯一标识
+        class: row[0],
+        total: row[1],
+        chinese: row[2],
+        math: row[3],
+        english: row[4],
+        politics: row[5],
+        history: row[6],
+        geography: row[7]
+      }));
+
+      // 计算总分排名
+      const totalSorted = [...data].sort((a, b) => b.total - a.total);
+      totalSorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.totalRank = index + 1;
+      });
+
+      // 计算语文排名
+      const chineseSorted = [...data].sort((a, b) => b.chinese - a.chinese);
+      chineseSorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.chineseRank = index + 1;
+      });
+
+      // 计算数学排名
+      const mathSorted = [...data].sort((a, b) => b.math - a.math);
+      mathSorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.mathRank = index + 1;
+      });
+
+      // 计算英语排名
+      const englishSorted = [...data].sort((a, b) => b.english - a.english);
+      englishSorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.englishRank = index + 1;
+      });
+
+      // 计算政治排名
+      const politicsSorted = [...data].sort((a, b) => b.politics - a.politics);
+      politicsSorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.politicsRank = index + 1;
+      });
+
+      // 计算历史排名
+      const historySorted = [...data].sort((a, b) => b.history - a.history);
+      historySorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.historyRank = index + 1;
+      });
+
+      // 计算地理排名
+      const geographySorted = [...data].sort((a, b) => b.geography - a.geography);
+      geographySorted.forEach((item, index) => {
+        const originalItem = data.find(d => d.id === item.id);
+        if (originalItem) originalItem.geographyRank = index + 1;
+      });
+
+      return data;
+    }
+
+    function getRankClass(rank) {
+      if (rank === 1) return 'rank-1';
+      if (rank === 2) return 'rank-2';
+      if (rank === 3) return 'rank-3';
+      return '';
+    }
+
+    function displayData() {
+      const data = processData();
+      // 按总分排序显示
+      const sortedData = [...data].sort((a, b) => b.total - a.total);
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      sortedData.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+                    <td class="${getRankClass(index + 1)}">${index + 1}</td>
+                    <td>${row.class}</td>
+                    <td>${row.total}</td>
+                    <td class="${getRankClass(row.totalRank)}">${row.totalRank}</td>
+                    <td>${row.chinese}</td>
+                    <td class="${getRankClass(row.chineseRank)}">${row.chineseRank}</td>
+                    <td>${row.math}</td>
+                    <td class="${getRankClass(row.mathRank)}">${row.mathRank}</td>
+                    <td>${row.english}</td>
+                    <td class="${getRankClass(row.englishRank)}">${row.englishRank}</td>
+                    <td>${row.politics}</td>
+                    <td class="${getRankClass(row.politicsRank)}">${row.politicsRank}</td>
+                    <td>${row.history}</td>
+                    <td class="${getRankClass(row.historyRank)}">${row.historyRank}</td>
+                    <td>${row.geography}</td>
+                    <td class="${getRankClass(row.geographyRank)}">${row.geographyRank}</td>
+                `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function downloadExcel() {
+      try {
+        // 检查XLSX库是否加载
+        if (typeof XLSX === 'undefined') {
+          alert('Excel库未加载，请刷新页面重试');
+          return;
+        }
+
+        const data = processData();
+        // 按总分排序
+        const sortedData = [...data].sort((a, b) => b.total - a.total);
+        const ws_data = [
+          ['名次', '班级', '总分', '总分排名', '语文', '语文排名', '数学', '数学排名', '英语', '英语排名', '政治', '政治排名', '历史', '历史排名', '地理', '地理排名']
+        ];
+
+        sortedData.forEach((row, index) => {
+          ws_data.push([
+            index + 1,
+            row.class,
+            row.total,
+            row.totalRank,
+            row.chinese,
+            row.chineseRank,
+            row.math,
+            row.mathRank,
+            row.english,
+            row.englishRank,
+            row.politics,
+            row.politicsRank,
+            row.history,
+            row.historyRank,
+            row.geography,
+            row.geographyRank
+          ]);
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+        // 设置列宽
+        ws['!cols'] = [
+          { wch: 8 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
+          { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
+          { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, "成绩排名表");
+
+        // 多种下载方式兼容
+        const fileName = "铜仁市2025年7月高一年级成绩排名表.xlsx";
+
+        // 方式1：标准下载
+        try {
+          XLSX.writeFile(wb, fileName);
+          showMessage('Excel文件下载成功！', 'success');
+        } catch (e) {
+          // 方式2：手动触发下载
+          const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+          const blob = new Blob([s2ab(wbout)], { type: "application/octet-stream" });
+          saveAs(blob, fileName);
+        }
+
+      } catch (error) {
+        console.error('下载失败:', error);
+        showMessage('下载失败，请检查浏览器兼容性', 'error');
+      }
+    }
+
+    // 辅助函数：字符串转ArrayBuffer
+    function s2ab(s) {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+
+    // 辅助函数：手动保存文件
+    function saveAs(blob, filename) {
+      const link = document.createElement('a');
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showMessage('Excel文件下载成功！', 'success');
+      } else {
+        showMessage('您的浏览器不支持直接下载，请使用较新版本的浏览器', 'error');
+      }
+    }
+
+    // 显示消息提示
+    function showMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 9999;
+                text-align: center;
+                ${type === 'success' ? 'background: #4CAF50;' : 'background: #f44336;'}
+            `;
+      messageDiv.textContent = message;
+      document.body.appendChild(messageDiv);
+
+      setTimeout(() => {
+        document.body.removeChild(messageDiv);
+      }, 3000);
+    }
+
+    function showStats() {
+      const data = processData();
+      const statsContainer = document.getElementById('statsContainer');
+
+      if (statsContainer.style.display === 'none') {
+        const maxTotal = Math.max(...data.map(d => d.total));
+        const maxChinese = Math.max(...data.map(d => d.chinese));
+        const maxMath = Math.max(...data.map(d => d.math));
+        const maxEnglish = Math.max(...data.map(d => d.english));
+        const maxPolitics = Math.max(...data.map(d => d.politics));
+        const maxHistory = Math.max(...data.map(d => d.history));
+        const maxGeography = Math.max(...data.map(d => d.geography));
+        const avgTotal = (data.reduce((sum, d) => sum + d.total, 0) / data.length).toFixed(1);
+
+        document.getElementById('maxTotal').textContent = maxTotal;
+        document.getElementById('maxChinese').textContent = maxChinese;
+        document.getElementById('maxMath').textContent = maxMath;
+        document.getElementById('maxEnglish').textContent = maxEnglish;
+        document.getElementById('maxPolitics').textContent = maxPolitics;
+        document.getElementById('maxHistory').textContent = maxHistory;
+        document.getElementById('maxGeography').textContent = maxGeography;
+        document.getElementById('avgTotal').textContent = avgTotal;
+
+        statsContainer.style.display = 'grid';
+      } else {
+        statsContainer.style.display = 'none';
+      }
+    }
+
+    // 添加CSV下载功能作为备选
+    function downloadCSV() {
+      try {
+        const data = processData();
+        const sortedData = [...data].sort((a, b) => b.total - a.total);
+
+        let csvContent = "名次,班级,总分,总分排名,语文,语文排名,数学,数学排名,英语,英语排名,政治,政治排名,历史,历史排名,地理,地理排名\n";
+
+        sortedData.forEach((row, index) => {
+          csvContent += `${index + 1},${row.class},${row.total},${row.totalRank},${row.chinese},${row.chineseRank},${row.math},${row.mathRank},${row.english},${row.englishRank},${row.politics},${row.politicsRank},${row.history},${row.historyRank},${row.geography},${row.geographyRank}\n`;
+        });
+
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const fileName = "铜仁市2025年7月高一年级成绩排名表.csv";
+
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', fileName);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showMessage('CSV文件下载成功！', 'success');
+        } else {
+          showMessage('您的浏览器不支持下载功能', 'error');
+        }
+      } catch (error) {
+        console.error('CSV下载失败:', error);
+        showMessage('CSV下载失败', 'error');
+      }
+    }
+
+    // 初始化显示数据
+    displayData();
+  </script>
+</body>
+
+</html>
