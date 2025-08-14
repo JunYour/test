@@ -339,6 +339,28 @@
                 <div class="result-area" id="mergeResult"></div>
             </div>
         </div>
+        
+        <!-- 原始数据和综合导出区域 -->
+        <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border: 1px solid #e0e6ff; margin-bottom: 20px;">
+            <h3 style="color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <span class="icon" style="font-size: 1.5rem;">📊</span>
+                数据管理中心
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <button class="process-btn" onclick="showOriginalData()" id="showOriginalBtn" disabled style="background: linear-gradient(45deg, #3498db, #2980b9);">
+                    📋 查看原始数据
+                </button>
+                <button class="process-btn" onclick="exportMultipleSheets()" id="exportMultipleBtn" disabled style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
+                    📦 导出所有结果到一个Excel
+                </button>
+                <button class="process-btn" onclick="clearAllData()" style="background: linear-gradient(45deg, #95a5a6, #7f8c8d);">
+                    🗑️ 清空所有数据
+                </button>
+            </div>
+            
+            <div class="result-area" id="originalDataResult"></div>
+        </div>
     </div>
 
     <script>
@@ -415,9 +437,11 @@
                 // 显示数据预览
                 displayDataPreview(originalData, sheetName);
                 
-                // 启用处理按钮
+                // 启用处理按钮和数据管理按钮
                 document.getElementById('dedupeBtn').disabled = false;
                 document.getElementById('mergeBtn').disabled = false;
+                document.getElementById('showOriginalBtn').disabled = false;
+                document.getElementById('exportMultipleBtn').disabled = false;
                 
                 // 清空之前的结果
                 document.getElementById('dedupeResult').innerHTML = '';
@@ -811,6 +835,83 @@
             
             // 下载文件
             XLSX.writeFile(wb, filename);
+        }
+
+        function showOriginalData() {
+            if (originalData.length === 0) {
+                alert('没有原始数据可显示');
+                return;
+            }
+
+            const currentSheet = document.getElementById('sheetSelect').value || '原始数据';
+            displayResult('originalDataResult', originalData, `原始数据 (${currentSheet})`);
+        }
+
+        function exportMultipleSheets() {
+            if (originalData.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            
+            // 添加原始数据工作表
+            if (originalData.length > 0) {
+                const wsOriginal = XLSX.utils.aoa_to_sheet(originalData);
+                XLSX.utils.book_append_sheet(wb, wsOriginal, "原始数据");
+            }
+            
+            // 添加去重数据工作表
+            if (deduplicatedData.length > 0) {
+                const wsDedupe = XLSX.utils.aoa_to_sheet(deduplicatedData);
+                XLSX.utils.book_append_sheet(wb, wsDedupe, "去重后数据");
+            }
+            
+            // 添加合并数据工作表
+            if (mergedData.length > 0) {
+                const wsMerged = XLSX.utils.aoa_to_sheet(mergedData);
+                XLSX.utils.book_append_sheet(wb, wsMerged, "合并后数据");
+            }
+            
+            const timestamp = new Date().toLocaleString('zh-CN').replace(/[/:]/g, '-').replace(/\s/g, '_');
+            const filename = `数据处理结果_${timestamp}.xlsx`;
+            
+            // 下载文件
+            XLSX.writeFile(wb, filename);
+            
+            alert(`已导出Excel文件：${filename}\n包含的工作表：\n- 原始数据 (${originalData.length}行)\n${deduplicatedData.length > 0 ? `- 去重后数据 (${deduplicatedData.length}行)\n` : ''}${mergedData.length > 0 ? `- 合并后数据 (${mergedData.length}行)` : ''}`);
+        }
+
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
+                // 重置所有数据
+                workbook = null;
+                originalData = [];
+                deduplicatedData = [];
+                mergedData = [];
+                
+                // 重置界面
+                document.getElementById('fileName').textContent = '';
+                document.getElementById('sheetSelector').style.display = 'none';
+                document.getElementById('dataPreview').style.display = 'none';
+                document.getElementById('columnSelector').style.display = 'none';
+                document.getElementById('dedupeColumnSelector').style.display = 'none';
+                
+                // 清空结果区域
+                document.getElementById('dedupeResult').innerHTML = '';
+                document.getElementById('mergeResult').innerHTML = '';
+                document.getElementById('originalDataResult').innerHTML = '';
+                
+                // 禁用按钮
+                document.getElementById('dedupeBtn').disabled = true;
+                document.getElementById('mergeBtn').disabled = true;
+                document.getElementById('showOriginalBtn').disabled = true;
+                document.getElementById('exportMultipleBtn').disabled = true;
+                
+                // 重置文件输入
+                document.getElementById('fileInput').value = '';
+            }
         }
     </script>
 </body>
