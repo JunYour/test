@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +12,17 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
-            max-width: 1200px;
+            max-width: 1600px;
+            /* Increased max-width for 3 columns */
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -28,7 +30,7 @@
             padding: 30px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
-        
+
         .title {
             text-align: center;
             color: #333;
@@ -40,7 +42,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .upload-section {
             background: #f8f9ff;
             border: 2px dashed #667eea;
@@ -50,16 +52,16 @@
             margin-bottom: 30px;
             transition: all 0.3s ease;
         }
-        
+
         .upload-section:hover {
             background: #f0f2ff;
             border-color: #5a6fd8;
         }
-        
+
         .file-input {
             display: none;
         }
-        
+
         .upload-btn {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
@@ -72,27 +74,37 @@
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
-        
+
         .upload-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
-        
+
         .process-section {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            /* Changed to be responsive for 3 items */
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
             margin-bottom: 30px;
         }
-        
+
         .process-card {
             background: white;
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e0e6ff;
+            display: flex;
+            /* Added for flex layout */
+            flex-direction: column;
+            /* Added for flex layout */
         }
-        
+
+        .process-card>*:last-child {
+            margin-top: auto;
+            /* Pushes the result area to the bottom */
+        }
+
         .process-card h3 {
             color: #333;
             margin-bottom: 15px;
@@ -101,11 +113,11 @@
             align-items: center;
             gap: 10px;
         }
-        
+
         .icon {
             font-size: 1.5rem;
         }
-        
+
         .process-btn {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
@@ -119,19 +131,19 @@
             width: 100%;
             margin-bottom: 15px;
         }
-        
+
         .process-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
-        
+
         .process-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
+
         .result-area {
             background: white;
             border-radius: 10px;
@@ -139,30 +151,30 @@
             margin-top: 20px;
             border: 1px solid #e0e6ff;
         }
-        
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-        
+
         .data-table th,
         .data-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-        
+
         .data-table th {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             font-weight: 600;
         }
-        
+
         .data-table tr:nth-child(even) {
             background-color: #f8f9ff;
         }
-        
+
         .download-btn {
             background: linear-gradient(45deg, #FF6B6B, #ee5a52);
             color: white;
@@ -176,39 +188,40 @@
             width: 100%;
             margin-top: 15px;
         }
-        
+
         .download-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
-        
+
         .sample-data {
             background: #f0f8ff;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .sample-data h4 {
             color: #333;
             margin-bottom: 10px;
         }
-        
+
         @media (max-width: 768px) {
             .process-section {
                 grid-template-columns: 1fr;
             }
-            
+
             .title {
                 font-size: 2rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="title">📊 Excel数据处理工具</h1>
-        
+
         <div class="upload-section">
             <h3>📁 上传Excel文件</h3>
             <p style="color: #666; margin: 10px 0;">支持.xlsx和.xls格式</p>
@@ -217,64 +230,66 @@
                 选择文件
             </button>
             <div id="fileName" style="margin-top: 10px; color: #666;"></div>
-            
-            <!-- 工作表选择 -->
+
             <div id="sheetSelector" style="margin-top: 20px; display: none;">
                 <h4 style="color: #333; margin-bottom: 10px;">📋 选择要处理的工作表：</h4>
-                <select id="sheetSelect" style="padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 1rem; width: 100%; max-width: 300px;">
+                <select id="sheetSelect"
+                    style="padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 1rem; width: 100%; max-width: 300px;">
                 </select>
                 <button class="upload-btn" onclick="loadSelectedSheet()" style="margin-top: 10px; padding: 10px 20px;">
                     加载选中的工作表
                 </button>
             </div>
-            
-            <!-- 数据预览 -->
+
             <div id="dataPreview" style="margin-top: 20px; display: none;">
                 <h4 style="color: #333;">📊 数据预览（前5行）：</h4>
                 <div id="previewTable" style="margin-top: 10px; overflow-x: auto;"></div>
             </div>
         </div>
-        
+
         <div class="process-section">
             <div class="process-card">
                 <h3><span class="icon">🔄</span>数据去重处理</h3>
                 <p style="color: #666; margin-bottom: 15px;">基于选择的列移除重复的行数据</p>
-                
-                <!-- 去重列选择配置 -->
+
                 <div id="dedupeColumnSelector" style="margin-bottom: 15px; display: none;">
                     <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                         <h4 style="color: #333; margin-bottom: 10px;">🎯 选择去重依据列：</h4>
-                        
+
                         <div style="margin-bottom: 10px;">
                             <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
                                 🔍 去重模式：
                             </label>
-                            <select id="dedupeMode" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;" onchange="toggleDedupeColumns()">
+                            <select id="dedupeMode"
+                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;"
+                                onchange="toggleDedupeColumns()">
                                 <option value="all">完整行去重（所有列都相同才算重复）</option>
                                 <option value="selected">指定列去重（选择的列相同就算重复）</option>
                             </select>
                         </div>
-                        
+
                         <div id="dedupeColumnsSelection" style="margin-bottom: 10px; display: none;">
                             <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
                                 📋 选择去重依据列（多选）：
                             </label>
-                            <div id="dedupeColumnsCheckboxes" style="max-height: 120px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: white;">
+                            <div id="dedupeColumnsCheckboxes"
+                                style="max-height: 120px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: white;">
                             </div>
                         </div>
-                        
+
                         <div style="margin-bottom: 10px;">
                             <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
                                 ⚙️ 保留策略：
                             </label>
-                            <select id="keepStrategy" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+                            <select id="keepStrategy"
+                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
                                 <option value="first">保留第一次出现的数据</option>
                                 <option value="last">保留最后一次出现的数据</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                
+
                 <button class="process-btn" id="dedupeBtn" onclick="deduplicateData()" disabled>
                     执行去重
                 </button>
@@ -286,39 +301,41 @@
                     <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">*可选择基于所有列或指定列进行去重</p>
                 </div>
                 <div class="result-area" style="max-height: 600px;
-        overflow: auto;" id="dedupeResult"></div>
+    overflow: auto;" id="dedupeResult"></div>
             </div>
-            
+
             <div class="process-card">
                 <h3><span class="icon">📋</span>数据合并处理</h3>
                 <p style="color: #666; margin-bottom: 15px;">将同学生的科目成绩合并到一行</p>
-                
-                <!-- 列选择配置 -->
+
                 <div id="columnSelector" style="margin-bottom: 15px; display: none;">
                     <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                         <h4 style="color: #333; margin-bottom: 10px;">🎯 选择合并列：</h4>
-                        
+
                         <div style="margin-bottom: 10px;">
                             <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
                                 📝 分组依据列（相同值会被合并）：
                             </label>
-                            <select id="groupByColumn" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+                            <select id="groupByColumn"
+                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
                             </select>
                         </div>
-                        
+
                         <div style="margin-bottom: 10px;">
                             <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
                                 🔗 要合并的列（多选）：
                             </label>
-                            <div id="mergeColumnsCheckboxes" style="max-height: 120px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: white;">
+                            <div id="mergeColumnsCheckboxes"
+                                style="max-height: 120px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: white;">
                             </div>
                         </div>
-                        
+
                         <div style="margin-bottom: 10px;">
                             <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
                                 ⚙️ 合并分隔符：
                             </label>
-                            <select id="separator" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+                            <select id="separator"
+                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
                                 <option value=", ">逗号 (,)</option>
                                 <option value=" | ">竖线 (|)</option>
                                 <option value="; ">分号 (;)</option>
@@ -328,7 +345,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <button class="process-btn" id="mergeBtn" onclick="mergeData()" disabled>
                     执行合并
                 </button>
@@ -339,29 +356,90 @@
                 </div>
                 <div class="result-area" style="max-height: 600px;overflow: auto;" id="mergeResult"></div>
             </div>
+
+            <div class="process-card">
+                <h3><span class="icon">✨</span>条件赋值处理</h3>
+                <p style="color: #666; margin-bottom: 15px;">根据指定列的条件，将一列的值赋给另一列。</p>
+
+                <div id="conditionalAssignSelector" style="margin-bottom: 15px; display: none;">
+                    <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h4 style="color: #333; margin-bottom: 10px;">🎯 设置赋值规则：</h4>
+
+                        <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
+                            IF (如果):
+                        </label>
+                        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <select id="conditionColumn"
+                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-bottom:10px;"></select>
+                            <select id="conditionOperator" onchange="toggleConditionValueInput()"
+                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-bottom:10px;">
+                                <option value="==">等于 (==)</option>
+                                <option value="!=">不等于 (!=)</option>
+                                <option value="contains">包含 (contains)</option>
+                                <option value="not-contains">不包含 (not contains)</option>
+                                <option value="is-empty">为空 (is empty)</option>
+                                <option value="is-not-empty">不为空 (is not empty)</option>
+                                <option value=">">大于 (>)</option>
+                                <option value="<">小于 (<)< /option>
+                                <option value=">=">大于等于 (>=)</option>
+                                <option value="<=">小于等于 (<=)< /option>
+                            </select>
+                            <input type="text" id="conditionValue" placeholder="输入条件值"
+                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        </div>
+
+                        <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
+                            THEN (那么):
+                        </label>
+                        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                            <label style="font-size: 0.9rem; color: #555;">将此列:</label>
+                            <select id="destinationColumn"
+                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-bottom:10px;"></select>
+                            <label style="font-size: 0.9rem; color: #555;">的值设为这一列的值:</label>
+                            <select id="sourceColumn"
+                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="process-btn" id="conditionalAssignBtn" onclick="performConditionalAssignment()" disabled>
+                    执行赋值
+                </button>
+                <div class="sample-data">
+                    <h4>示例逻辑：</h4>
+                    <pre style="color: #555; font-size: 0.9rem;">如果 [订单状态列] 等于 "已支付",
+那么将 [发货状态列] 设为 [默认状态列] 的值</pre>
+                    <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">*源列和目标列可以是同一列</p>
+                </div>
+                <div class="result-area" style="max-height: 600px;overflow: auto;" id="conditionalAssignResult"></div>
+            </div>
         </div>
-        
-        <!-- 原始数据和综合导出区域 -->
-        <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border: 1px solid #e0e6ff; margin-bottom: 20px;">
+
+        <div
+            style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border: 1px solid #e0e6ff; margin-bottom: 20px;">
             <h3 style="color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <span class="icon" style="font-size: 1.5rem;">📊</span>
+                <span class="icon" style="font-size: 1.5rem;">🗂️</span>
                 数据管理中心
             </h3>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <button class="process-btn" onclick="showOriginalData()" id="showOriginalBtn" disabled style="background: linear-gradient(45deg, #3498db, #2980b9);">
+
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <button class="process-btn" onclick="showOriginalData()" id="showOriginalBtn" disabled
+                    style="background: linear-gradient(45deg, #3498db, #2980b9);">
                     📋 查看原始数据
                 </button>
-                <button class="process-btn" onclick="exportMultipleSheets()" id="exportMultipleBtn" disabled style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
+                <button class="process-btn" onclick="exportMultipleSheets()" id="exportMultipleBtn" disabled
+                    style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
                     📦 导出所有结果到一个Excel
                 </button>
-                <button class="process-btn" onclick="clearAllData()" style="background: linear-gradient(45deg, #95a5a6, #7f8c8d);">
+                <button class="process-btn" onclick="clearAllData()"
+                    style="background: linear-gradient(45deg, #95a5a6, #7f8c8d);">
                     🗑️ 清空所有数据
                 </button>
             </div>
-            
+
             <div class="result-area" style="max-height: 600px;
-        overflow: auto;" id="originalDataResult"></div>
+    overflow: auto;" id="originalDataResult"></div>
         </div>
     </div>
 
@@ -370,8 +448,9 @@
         let originalData = [];
         let deduplicatedData = [];
         let mergedData = [];
+        let conditionalAssignResult = []; // NEW: for conditional assignment result
 
-        document.getElementById('fileInput').addEventListener('change', function(e) {
+        document.getElementById('fileInput').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
                 document.getElementById('fileName').textContent = `已选择: ${file.name}`;
@@ -381,14 +460,14 @@
 
         function readExcelFile(file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     workbook = XLSX.read(data, { type: 'array' });
-                    
+
                     // 显示工作表选择器
                     displaySheetSelector(workbook.SheetNames);
-                    
+
                 } catch (error) {
                     alert('文件读取错误: ' + error.message);
                 }
@@ -399,10 +478,10 @@
         function displaySheetSelector(sheetNames) {
             const sheetSelector = document.getElementById('sheetSelector');
             const sheetSelect = document.getElementById('sheetSelect');
-            
+
             // 清空选项
             sheetSelect.innerHTML = '';
-            
+
             // 添加工作表选项
             sheetNames.forEach((sheetName, index) => {
                 const option = document.createElement('option');
@@ -410,9 +489,9 @@
                 option.textContent = `${sheetName} (工作表${index + 1})`;
                 sheetSelect.appendChild(option);
             });
-            
+
             sheetSelector.style.display = 'block';
-            
+
             // 默认加载第一个工作表
             if (sheetNames.length > 0) {
                 loadSheet(sheetNames[0]);
@@ -427,32 +506,35 @@
         function loadSheet(sheetName) {
             try {
                 const worksheet = workbook.Sheets[sheetName];
-                
+
                 // 转换为JSON数组
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {
                     header: 1,
-                    defval: "" 
+                    defval: ""
                 });
-                
+
                 originalData = jsonData.filter(row => row.some(cell => cell !== ""));
-                
+
                 // 显示数据预览
                 displayDataPreview(originalData, sheetName);
-                
+
                 // 启用处理按钮和数据管理按钮
                 document.getElementById('dedupeBtn').disabled = false;
                 document.getElementById('mergeBtn').disabled = false;
+                document.getElementById('conditionalAssignBtn').disabled = false; // NEW
                 document.getElementById('showOriginalBtn').disabled = false;
                 document.getElementById('exportMultipleBtn').disabled = false;
-                
+
                 // 清空之前的结果
                 document.getElementById('dedupeResult').innerHTML = '';
                 document.getElementById('mergeResult').innerHTML = '';
+                document.getElementById('conditionalAssignResult').innerHTML = ''; // NEW
                 deduplicatedData = [];
                 mergedData = [];
-                
+                conditionalAssignResult = []; // NEW
+
                 console.log(`${sheetName} 数据:`, originalData);
-                
+
             } catch (error) {
                 alert('工作表读取错误: ' + error.message);
             }
@@ -461,27 +543,28 @@
         function displayDataPreview(data, sheetName) {
             const previewDiv = document.getElementById('dataPreview');
             const previewTable = document.getElementById('previewTable');
-            
+
             if (data.length === 0) {
                 previewDiv.style.display = 'none';
                 return;
             }
-            
+
             // 只显示前5行数据
             const previewData = data.slice(0, 5);
-            
+
             let html = `<p style="color: #666; margin-bottom: 10px;">工作表: <strong>${sheetName}</strong> | 总行数: <strong>${data.length}</strong></p>`;
             html += '<table class="data-table" style="font-size: 0.9rem;">';
-            
+
             // 表头
             if (previewData.length > 0) {
+                const maxCols = Math.max(...previewData.map(row => row.length));
                 html += '<tr>';
-                for (let i = 0; i < previewData[0].length; i++) {
+                for (let i = 0; i < maxCols; i++) {
                     html += `<th>列${String.fromCharCode(65 + i)}</th>`;
                 }
                 html += '</tr>';
             }
-            
+
             // 数据行
             previewData.forEach((row, index) => {
                 html += '<tr>';
@@ -490,90 +573,75 @@
                 });
                 html += '</tr>';
             });
-            
+
             html += '</table>';
-            
+
             if (data.length > 5) {
                 html += '<p style="color: #888; font-size: 0.9rem; margin-top: 10px;">... 还有更多数据</p>';
             }
-            
+
             previewTable.innerHTML = html;
             previewDiv.style.display = 'block';
-            
+
             // 生成列选择器
             generateColumnSelectors(data);
         }
 
         function generateColumnSelectors(data) {
             if (data.length === 0) return;
-            
+
+            // Selectors for Merge
             const columnSelector = document.getElementById('columnSelector');
-            const dedupeColumnSelector = document.getElementById('dedupeColumnSelector');
             const groupByColumn = document.getElementById('groupByColumn');
             const mergeColumnsCheckboxes = document.getElementById('mergeColumnsCheckboxes');
+
+            // Selectors for Dedupe
+            const dedupeColumnSelector = document.getElementById('dedupeColumnSelector');
             const dedupeColumnsCheckboxes = document.getElementById('dedupeColumnsCheckboxes');
-            
-            // 清空现有选项
+
+            // NEW: Selectors for Conditional Assign
+            const conditionalAssignSelector = document.getElementById('conditionalAssignSelector');
+            const conditionColumn = document.getElementById('conditionColumn');
+            const sourceColumn = document.getElementById('sourceColumn');
+            const destinationColumn = document.getElementById('destinationColumn');
+
+            // Clear existing options
             groupByColumn.innerHTML = '';
             mergeColumnsCheckboxes.innerHTML = '';
             dedupeColumnsCheckboxes.innerHTML = '';
-            
+            conditionColumn.innerHTML = ''; // NEW
+            sourceColumn.innerHTML = ''; // NEW
+            destinationColumn.innerHTML = ''; // NEW
+
             // 获取列数
             const maxColumns = Math.max(...data.map(row => row.length));
-            
-            // 生成分组列选项（合并功能）
+
             for (let i = 0; i < maxColumns; i++) {
                 const columnLetter = String.fromCharCode(65 + i);
+                const optionText = `列${columnLetter} (第${i + 1}列)`;
+
+                // Option for dropdowns
                 const option = document.createElement('option');
                 option.value = i;
-                option.textContent = `列${columnLetter} (第${i + 1}列)`;
-                groupByColumn.appendChild(option);
+                option.textContent = optionText;
+
+                // Option for dropdowns (cloned)
+                groupByColumn.appendChild(option.cloneNode(true));
+                conditionColumn.appendChild(option.cloneNode(true));
+                sourceColumn.appendChild(option.cloneNode(true));
+                destinationColumn.appendChild(option.cloneNode(true));
+
+                // Checkboxes for Merge
+                const mergeCheckboxDiv = document.createElement('div');
+                mergeCheckboxDiv.innerHTML = `<input type="checkbox" id="mergeCol${i}" value="${i}" style="margin-right: 8px;"><label for="mergeCol${i}" style="cursor: pointer;">${optionText}</label>`;
+                mergeColumnsCheckboxes.appendChild(mergeCheckboxDiv);
+
+                // Checkboxes for Dedupe
+                const dedupeCheckboxDiv = document.createElement('div');
+                dedupeCheckboxDiv.innerHTML = `<input type="checkbox" id="dedupeCol${i}" value="${i}" style="margin-right: 8px;"><label for="dedupeCol${i}" style="cursor: pointer;">${optionText}</label>`;
+                dedupeColumnsCheckboxes.appendChild(dedupeCheckboxDiv);
             }
-            
-            // 生成要合并的列复选框（合并功能）
-            for (let i = 0; i < maxColumns; i++) {
-                const columnLetter = String.fromCharCode(65 + i);
-                const checkboxDiv = document.createElement('div');
-                checkboxDiv.style.marginBottom = '5px';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `mergeCol${i}`;
-                checkbox.value = i;
-                checkbox.style.marginRight = '8px';
-                
-                const label = document.createElement('label');
-                label.htmlFor = `mergeCol${i}`;
-                label.textContent = `列${columnLetter} (第${i + 1}列)`;
-                label.style.cursor = 'pointer';
-                
-                checkboxDiv.appendChild(checkbox);
-                checkboxDiv.appendChild(label);
-                mergeColumnsCheckboxes.appendChild(checkboxDiv);
-            }
-            
-            // 生成去重列复选框（去重功能）
-            for (let i = 0; i < maxColumns; i++) {
-                const columnLetter = String.fromCharCode(65 + i);
-                const checkboxDiv = document.createElement('div');
-                checkboxDiv.style.marginBottom = '5px';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `dedupeCol${i}`;
-                checkbox.value = i;
-                checkbox.style.marginRight = '8px';
-                
-                const label = document.createElement('label');
-                label.htmlFor = `dedupeCol${i}`;
-                label.textContent = `列${columnLetter} (第${i + 1}列)`;
-                label.style.cursor = 'pointer';
-                
-                checkboxDiv.appendChild(checkbox);
-                checkboxDiv.appendChild(label);
-                dedupeColumnsCheckboxes.appendChild(checkboxDiv);
-            }
-            
+
             // 默认选择：第一列作为分组，其他列作为合并（合并功能）
             if (maxColumns > 1) {
                 groupByColumn.value = '0';
@@ -581,25 +649,29 @@
                     document.getElementById(`mergeCol${i}`).checked = true;
                 }
             }
-            
+
             // 默认选择：所有列都选中（去重功能）
             for (let i = 0; i < maxColumns; i++) {
                 document.getElementById(`dedupeCol${i}`).checked = true;
             }
-            
+
             columnSelector.style.display = 'block';
             dedupeColumnSelector.style.display = 'block';
+            conditionalAssignSelector.style.display = 'block'; // NEW
         }
 
         function toggleDedupeColumns() {
             const dedupeMode = document.getElementById('dedupeMode').value;
             const dedupeColumnsSelection = document.getElementById('dedupeColumnsSelection');
-            
-            if (dedupeMode === 'selected') {
-                dedupeColumnsSelection.style.display = 'block';
-            } else {
-                dedupeColumnsSelection.style.display = 'none';
-            }
+
+            dedupeColumnsSelection.style.display = (dedupeMode === 'selected') ? 'block' : 'none';
+        }
+
+        // NEW: Hide condition value input if operator is is-empty or is-not-empty
+        function toggleConditionValueInput() {
+            const operator = document.getElementById('conditionOperator').value;
+            const valueInput = document.getElementById('conditionValue');
+            valueInput.style.display = (operator === 'is-empty' || operator === 'is-not-empty') ? 'none' : 'block';
         }
 
         function deduplicateData() {
@@ -610,11 +682,10 @@
 
             const dedupeMode = document.getElementById('dedupeMode').value;
             const keepStrategy = document.getElementById('keepStrategy').value;
-            
+
             let dedupeColumnIndices = [];
-            
+
             if (dedupeMode === 'selected') {
-                // 获取选中的去重列
                 const maxColumns = Math.max(...originalData.map(row => row.length));
                 for (let i = 0; i < maxColumns; i++) {
                     const checkbox = document.getElementById(`dedupeCol${i}`);
@@ -622,61 +693,55 @@
                         dedupeColumnIndices.push(i);
                     }
                 }
-                
+
                 if (dedupeColumnIndices.length === 0) {
                     alert('请至少选择一列作为去重依据');
                     return;
                 }
             }
 
-            // 去重逻辑
             const seen = new Map();
             const duplicateIndexes = new Set();
-            
+
             originalData.forEach((row, index) => {
                 let keyStr;
-                
+
                 if (dedupeMode === 'all') {
-                    // 完整行去重
                     keyStr = JSON.stringify(row);
                 } else {
-                    // 指定列去重
-                    const keyValues = dedupeColumnIndices.map(colIndex => 
+                    const keyValues = dedupeColumnIndices.map(colIndex =>
                         row[colIndex] !== undefined ? row[colIndex] : ''
                     );
                     keyStr = JSON.stringify(keyValues);
                 }
-                
+
                 if (seen.has(keyStr)) {
-                    // 发现重复
                     const firstIndex = seen.get(keyStr);
                     if (keepStrategy === 'first') {
-                        duplicateIndexes.add(index); // 标记当前行为重复（保留第一次出现的）
+                        duplicateIndexes.add(index);
                     } else {
-                        duplicateIndexes.add(firstIndex); // 标记第一次出现的为重复（保留最后一次出现的）
-                        seen.set(keyStr, index); // 更新为当前索引
+                        duplicateIndexes.add(firstIndex);
+                        seen.set(keyStr, index);
                     }
                 } else {
                     seen.set(keyStr, index);
                 }
             });
 
-            // 过滤掉重复的行
             deduplicatedData = originalData.filter((row, index) => !duplicateIndexes.has(index));
 
-            // 生成去重报告
             const removedCount = originalData.length - deduplicatedData.length;
             let reportTitle = `去重后数据 (原始${originalData.length}行，去除${removedCount}行重复数据)`;
-            
+
             if (dedupeMode === 'selected') {
-                const selectedColumns = dedupeColumnIndices.map(i => 
+                const selectedColumns = dedupeColumnIndices.map(i =>
                     `列${String.fromCharCode(65 + i)}`
                 ).join(', ');
                 reportTitle += ` | 基于列: ${selectedColumns}`;
             } else {
                 reportTitle += ' | 基于: 完整行';
             }
-            
+
             reportTitle += ` | 策略: ${keepStrategy === 'first' ? '保留首次出现' : '保留最后出现'}`;
 
             displayResult('dedupeResult', deduplicatedData, reportTitle);
@@ -689,11 +754,9 @@
                 return;
             }
 
-            // 获取用户选择的配置
             const groupByColumnIndex = parseInt(document.getElementById('groupByColumn').value);
             const separator = document.getElementById('separator').value;
-            
-            // 获取选中要合并的列
+
             const mergeColumnIndices = [];
             const maxColumns = Math.max(...originalData.map(row => row.length));
             for (let i = 0; i < maxColumns; i++) {
@@ -702,113 +765,167 @@
                     mergeColumnIndices.push(i);
                 }
             }
-            
+
             if (mergeColumnIndices.length === 0) {
                 alert('请至少选择一列进行合并');
                 return;
             }
 
-            // 按分组列进行分组合并
             const grouped = {};
-            
+
             originalData.forEach(row => {
                 if (row.length > groupByColumnIndex) {
                     const groupKey = row[groupByColumnIndex] || '';
-                    
-                    if (groupKey) {
-                        if (!grouped[groupKey]) {
-                            grouped[groupKey] = {
-                                groupValue: groupKey,
-                                mergeValues: {}
-                            };
-                            // 初始化每个要合并的列
-                            mergeColumnIndices.forEach(colIndex => {
-                                grouped[groupKey].mergeValues[colIndex] = [];
-                            });
-                        }
-                        
-                        // 收集要合并的列的值
+
+                    if (!grouped[groupKey]) {
+                        grouped[groupKey] = {};
                         mergeColumnIndices.forEach(colIndex => {
-                            if (row.length > colIndex && row[colIndex]) {
-                                const value = row[colIndex].toString().trim();
-                                if (value && !grouped[groupKey].mergeValues[colIndex].includes(value)) {
-                                    grouped[groupKey].mergeValues[colIndex].push(value);
-                                }
-                            }
+                            grouped[groupKey][colIndex] = [];
                         });
                     }
+
+                    mergeColumnIndices.forEach(colIndex => {
+                        if (row.length > colIndex && row[colIndex] != null) {
+                            const value = String(row[colIndex]).trim();
+                            if (value && !grouped[groupKey][colIndex].includes(value)) {
+                                grouped[groupKey][colIndex].push(value);
+                            }
+                        }
+                    });
                 }
             });
 
-            // 转换为最终格式
-            mergedData = Object.keys(grouped).map(groupKey => {
-                const group = grouped[groupKey];
-                const result = [group.groupValue];
-                
-                // 按列顺序添加合并后的值
-                mergeColumnIndices.forEach(colIndex => {
-                    const values = group.mergeValues[colIndex];
-                    const mergedValue = values.join(separator);
-                    result.push(mergedValue);
-                });
-                
-                return result;
-            });
-
-            // 生成表头
             const headers = [`分组列 (列${String.fromCharCode(65 + groupByColumnIndex)})`];
             mergeColumnIndices.forEach(colIndex => {
                 headers.push(`合并列 (列${String.fromCharCode(65 + colIndex)})`);
+            });
+
+            mergedData = Object.keys(grouped).map(groupKey => {
+                const resultRow = [groupKey];
+                mergeColumnIndices.forEach(colIndex => {
+                    resultRow.push(grouped[groupKey][colIndex].join(separator));
+                });
+                return resultRow;
             });
 
             displayResultWithHeaders('mergeResult', mergedData, '合并后数据', headers);
             console.log('合并后数据:', mergedData);
         }
 
+        // NEW: Conditional Assignment Logic
+        function performConditionalAssignment() {
+            if (originalData.length === 0) {
+                alert('请先上传文件并选择工作表');
+                return;
+            }
+
+            const conditionColIndex = parseInt(document.getElementById('conditionColumn').value);
+            const operator = document.getElementById('conditionOperator').value;
+            const conditionValue = document.getElementById('conditionValue').value;
+            const sourceColIndex = parseInt(document.getElementById('sourceColumn').value);
+            const destColIndex = parseInt(document.getElementById('destinationColumn').value);
+
+            // Create a deep copy to avoid modifying originalData
+            const processedData = JSON.parse(JSON.stringify(originalData));
+            let rowsAffected = 0;
+
+            processedData.forEach(row => {
+                const valueToCheck = row[conditionColIndex];
+
+                if (evaluateCondition(valueToCheck, operator, conditionValue)) {
+                    const sourceValue = row[sourceColIndex] !== undefined ? row[sourceColIndex] : '';
+
+                    // Pad the row with empty strings if destination index is out of bounds
+                    while (row.length <= destColIndex) {
+                        row.push('');
+                    }
+
+                    row[destColIndex] = sourceValue;
+                    rowsAffected++;
+                }
+            });
+
+            conditionalAssignResult = processedData;
+            const reportTitle = `条件赋值后数据 (${rowsAffected} 行被修改)`;
+            displayResult('conditionalAssignResult', conditionalAssignResult, reportTitle);
+            console.log('Conditional assignment result:', conditionalAssignResult);
+        }
+
+        // NEW: Helper function to evaluate conditions
+        function evaluateCondition(val1, operator, val2) {
+            const v1 = (val1 === undefined || val1 === null) ? '' : String(val1).trim();
+            const v2 = (val2 === undefined || val2 === null) ? '' : String(val2).trim();
+
+            if (operator === 'is-empty') return v1 === '';
+            if (operator === 'is-not-empty') return v1 !== '';
+
+            const num1 = parseFloat(v1);
+            const num2 = parseFloat(v2);
+            // A valid numeric comparison happens if both values are numbers and are not empty strings
+            const isNumeric = !isNaN(num1) && !isNaN(num2) && v1 !== '' && v2 !== '';
+
+            switch (operator) {
+                case '==': return v1 === v2;
+                case '!=': return v1 !== v2;
+                case '>': return isNumeric ? num1 > num2 : v1 > v2;
+                case '<': return isNumeric ? num1 < num2 : v1 < v2;
+                case '>=': return isNumeric ? num1 >= num2 : v1 >= v2;
+                case '<=': return isNumeric ? num1 <= num2 : v1 <= v2;
+                case 'contains': return v1.includes(v2);
+                case 'not-contains': return !v1.includes(v2);
+                default: return false;
+            }
+        }
+
+
         function displayResult(containerId, data, title) {
             displayResultWithHeaders(containerId, data, title, null);
         }
 
+        // REVISED: To handle rows with varying lengths correctly
         function displayResultWithHeaders(containerId, data, title, headers) {
             const container = document.getElementById(containerId);
-            
-            if (data.length === 0) {
-                container.innerHTML = '<p>没有数据可显示</p>';
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<p style="color:#888;">${title ? title + ': ' : ''}没有数据可显示</p>`;
                 return;
             }
 
             let html = `<h4>${title} (共${data.length}行)</h4>`;
             html += '<table class="data-table">';
-            
-            // 表头
+
+            const maxCols = Math.max(...data.map(row => (row ? row.length : 0)));
+
+            // Table Header
+            html += '<thead><tr>';
             if (headers && headers.length > 0) {
-                html += '<tr>';
                 headers.forEach(header => {
                     html += `<th>${header}</th>`;
                 });
-                html += '</tr>';
-            } else if (data.length > 0) {
-                html += '<tr>';
-                for (let i = 0; i < data[0].length; i++) {
-                    html += `<th>列${i + 1}</th>`;
+                for (let i = headers.length; i < maxCols; i++) {
+                    html += `<th>列${String.fromCharCode(65 + i)}</th>`;
                 }
-                html += '</tr>';
+            } else {
+                for (let i = 0; i < maxCols; i++) {
+                    html += `<th>列${String.fromCharCode(65 + i)}</th>`;
+                }
             }
+            html += '</tr></thead>';
 
-            // 数据行
+            // Table Body
+            html += '<tbody>';
             data.forEach(row => {
                 html += '<tr>';
-                row.forEach(cell => {
-                    html += `<td>${cell || ''}</td>`;
-                });
+                for (let i = 0; i < maxCols; i++) {
+                    const cell = row ? row[i] : undefined;
+                    html += `<td>${(cell !== undefined && cell !== null) ? cell : ''}</td>`;
+                }
                 html += '</tr>';
             });
+            html += '</tbody>';
 
             html += '</table>';
-            
-            // 添加下载按钮
             html += `<button class="download-btn" onclick="downloadData('${containerId}')">下载Excel文件</button>`;
-            
             container.innerHTML = html;
         }
 
@@ -822,6 +939,12 @@
             } else if (type === 'mergeResult') {
                 dataToDownload = mergedData;
                 filename = '合并后数据.xlsx';
+            } else if (type === 'conditionalAssignResult') { // NEW
+                dataToDownload = conditionalAssignResult;
+                filename = '条件赋值后数据.xlsx';
+            } else if (type === 'originalDataResult') {
+                dataToDownload = originalData;
+                filename = '原始数据.xlsx';
             }
 
             if (dataToDownload.length === 0) {
@@ -829,13 +952,11 @@
                 return;
             }
 
-            // 创建工作簿
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(dataToDownload);
-            
+
             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-            
-            // 下载文件
+
             XLSX.writeFile(wb, filename);
         }
 
@@ -855,69 +976,71 @@
                 return;
             }
 
-            // 创建工作簿
             const wb = XLSX.utils.book_new();
-            
-            // 添加原始数据工作表
+            let alertMsg = '';
+
             if (originalData.length > 0) {
                 const wsOriginal = XLSX.utils.aoa_to_sheet(originalData);
                 XLSX.utils.book_append_sheet(wb, wsOriginal, "原始数据");
+                alertMsg += `- 原始数据 (${originalData.length}行)\n`;
             }
-            
-            // 添加去重数据工作表
+
             if (deduplicatedData.length > 0) {
                 const wsDedupe = XLSX.utils.aoa_to_sheet(deduplicatedData);
                 XLSX.utils.book_append_sheet(wb, wsDedupe, "去重后数据");
+                alertMsg += `- 去重后数据 (${deduplicatedData.length}行)\n`;
             }
-            
-            // 添加合并数据工作表
+
             if (mergedData.length > 0) {
                 const wsMerged = XLSX.utils.aoa_to_sheet(mergedData);
                 XLSX.utils.book_append_sheet(wb, wsMerged, "合并后数据");
+                alertMsg += `- 合并后数据 (${mergedData.length}行)\n`;
             }
-            
+
+            if (conditionalAssignResult.length > 0) { // NEW
+                const wsAssigned = XLSX.utils.aoa_to_sheet(conditionalAssignResult);
+                XLSX.utils.book_append_sheet(wb, wsAssigned, "条件赋值后数据");
+                alertMsg += `- 条件赋值后数据 (${conditionalAssignResult.length}行)`;
+            }
+
             const timestamp = new Date().toLocaleString('zh-CN').replace(/[/:]/g, '-').replace(/\s/g, '_');
             const filename = `数据处理结果_${timestamp}.xlsx`;
-            
-            // 下载文件
+
             XLSX.writeFile(wb, filename);
-            
-            alert(`已导出Excel文件：${filename}\n包含的工作表：\n- 原始数据 (${originalData.length}行)\n${deduplicatedData.length > 0 ? `- 去重后数据 (${deduplicatedData.length}行)\n` : ''}${mergedData.length > 0 ? `- 合并后数据 (${mergedData.length}行)` : ''}`);
+
+            alert(`已导出Excel文件：${filename}\n包含的工作表：\n${alertMsg}`);
         }
 
         function clearAllData() {
             if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
-                // 重置所有数据
                 workbook = null;
                 originalData = [];
                 deduplicatedData = [];
                 mergedData = [];
-                
-                // 重置界面
+                conditionalAssignResult = []; // NEW
+
                 document.getElementById('fileName').textContent = '';
                 document.getElementById('sheetSelector').style.display = 'none';
                 document.getElementById('dataPreview').style.display = 'none';
                 document.getElementById('columnSelector').style.display = 'none';
                 document.getElementById('dedupeColumnSelector').style.display = 'none';
-                
-                // 清空结果区域
+                document.getElementById('conditionalAssignSelector').style.display = 'none'; // NEW
+
                 document.getElementById('dedupeResult').innerHTML = '';
                 document.getElementById('mergeResult').innerHTML = '';
                 document.getElementById('originalDataResult').innerHTML = '';
-                
-                // 禁用按钮
+                document.getElementById('conditionalAssignResult').innerHTML = ''; // NEW
+
                 document.getElementById('dedupeBtn').disabled = true;
                 document.getElementById('mergeBtn').disabled = true;
                 document.getElementById('showOriginalBtn').disabled = true;
                 document.getElementById('exportMultipleBtn').disabled = true;
-                
-                // 重置文件输入
+                document.getElementById('conditionalAssignBtn').disabled = true; // NEW
+
                 document.getElementById('fileInput').value = '';
             }
         }
     </script>
 </body>
+
 </html>
-
-
-
