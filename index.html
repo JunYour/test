@@ -535,6 +535,42 @@
     } else {
       waitForFaceAPI();
     }
+
+    document.onkeydown = function (e) {
+      // 禁用 F12
+      if (e.key === 'F12' || e.keyCode === 123) {
+        return false;
+      }
+
+      // 禁用 Ctrl+Shift+I (查看元素/检查)
+      if (e.ctrlKey && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.keyCode === 73)) {
+        return false;
+      }
+
+      // 禁用 Ctrl+Shift+J (Console)
+      if (e.ctrlKey && e.shiftKey && (e.key === 'j' || e.key === 'J' || e.keyCode === 74)) {
+        return false;
+      }
+
+      // 禁用 Ctrl+U (查看源码)
+      if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) {
+        return false;
+      }
+    };
+
+    (function () {
+      function block() {
+        if (window.devtools) { // 某些库的检测变量
+          // 执行阻止操作
+        }
+        // 不断调用 debugger，让调试器一直暂停
+        (function loop() {
+          debugger;
+          setTimeout(loop, 1);
+        })();
+      }
+      block();
+    })();
   </script>
 </body>
 
