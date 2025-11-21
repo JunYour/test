@@ -327,7 +327,6 @@
 
 
         if (detection) {
-          console.log(detection)
           referenceFaceDescriptor = detection.descriptor;
 
           // 绘制检测结果
@@ -491,6 +490,7 @@
             });
 
             // 阈值：0.6 以下认为是同一个人
+            console.log(bestDistance)
             if (bestDistance < 0.6) {
               const similarity = ((1 - bestDistance) * 100).toFixed(1);
               matchResult.className = 'match-result match';
