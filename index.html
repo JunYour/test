@@ -107,7 +107,7 @@
       color: #666;
     }
 
-    .upload-area.hidden {
+    .hidden {
       display: none;
     }
 
@@ -146,7 +146,7 @@
       transform: none;
     }
 
-    button.secondary {
+    .secondary {
       background: #6c757d;
     }
 
@@ -162,17 +162,17 @@
       font-size: 14px;
     }
 
-    .status.loading {
+    .loading {
       background: #fff3cd;
       color: #856404;
     }
 
-    .status.ready {
+    .ready {
       background: #d4edda;
       color: #155724;
     }
 
-    .status.error {
+    .error {
       background: #f8d7da;
       color: #721c24;
     }
@@ -187,19 +187,19 @@
       display: none;
     }
 
-    .match-result.match {
+    .match {
       background: #d4edda;
       color: #155724;
       display: block;
     }
 
-    .match-result.no-match {
+    .no-match {
       background: #f8d7da;
       color: #721c24;
       display: block;
     }
 
-    .match-result.checking {
+    .checking {
       background: #d1ecf1;
       color: #0c5460;
       display: block;
@@ -313,18 +313,22 @@
 
     // 处理参考照片
     async function processReferenceImage() {
+
+      let detection = null; // 显式初始化为 null
+
       try {
         matchResult.className = 'match-result checking';
         matchResult.textContent = '正在分析参考照片...';
         await referenceImg.decode();
 
-        const detection = await faceapi
+        detection = await faceapi
           .detectSingleFace(referenceImg)
           .withFaceLandmarks()
           .withFaceDescriptor();
 
-        if (detection) {
 
+        if (!detection === undefined) {
+          console.log(detection)
           referenceFaceDescriptor = detection.descriptor;
 
           // 绘制检测结果
@@ -336,16 +340,20 @@
           faceapi.draw.drawDetections(referenceCanvas, resizedDetection);
           faceapi.draw.drawFaceLandmarks(referenceCanvas, resizedDetection);
 
+          matchResult.style.display = 'block';
           matchResult.className = 'match-result ready';
           matchResult.textContent = '✓ 参考人脸已识别，可以开始比对';
 
           console.log('参考人脸特征已提取');
         } else {
+
+          matchResult.style.display = 'block';
           matchResult.className = 'match-result error';
           matchResult.textContent = '✗ 未在照片中检测到人脸，请重新上传';
           referenceFaceDescriptor = null;
         }
       } catch (error) {
+        matchResult.style.display = 'block';
         console.error('处理参考照片错误:', error);
         matchResult.className = 'match-result error';
         matchResult.textContent = '✗ 处理照片失败: ' + error.message;
