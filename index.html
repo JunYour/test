@@ -558,6 +558,11 @@
       }
     };
 
+    document.oncontextmenu = function () {
+      alert("禁止右键操作!");
+      return false; // 禁用右键菜单的默认行为
+    };
+
     (function () {
       function block() {
         if (window.devtools) { // 某些库的检测变量
@@ -571,6 +576,44 @@
       }
       block();
     })();
+
+
+    /**
+ * 核心方法：检查开发者工具是否打开
+ */
+    function checkDevTools() {
+      // 浏览器外部和内部尺寸差异的阈值。
+      // 当 DevTools 开启并停靠在主窗口时，这个差异会增大。
+      const threshold = 160;
+
+      // 检查宽度或高度差异是否超过阈值
+      if (window.outerWidth - window.innerWidth > threshold ||
+        window.outerHeight - window.innerHeight > threshold) {
+
+        handleDevToolsOpen(); // 发现 DevTools 开启，执行处理函数
+      } else {
+        // 如果 DevTools 关闭后需要恢复页面的话，可以在这里处理
+        // restorePage();
+      }
+    }
+
+    /**
+     * 开发者工具开启时的处理逻辑
+     */
+    function handleDevToolsOpen() {
+      console.log("开发者工具已开启!");
+      // *** 执行阻止/干扰操作 ***
+      document.body.innerHTML = '<h1>检测到开发者工具已开启，请关闭后刷新页面。</h1><p>请尊重网站的版权和隐私。</p>';
+    }
+
+    // 1. 页面加载完成后立即检查
+    window.onload = checkDevTools;
+
+    // 2. 窗口大小变化时检查 (用户打开/关闭 DevTools时会触发)
+    window.onresize = checkDevTools;
+
+    // 3. (可选) 设置定时器持续检查，以防用户分离 DevTools 窗口
+    // setInterval(checkDevTools, 500);
   </script>
 </body>
 
