@@ -463,7 +463,6 @@
           faceapi.draw.drawDetections(canvas, resizedDetections);
           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-          console.log("referenceFaceDescriptor", referenceFaceDescriptor)
           // 如果有参考人脸，进行比对
           if (referenceFaceDescriptor) {
             let bestMatch = null;
