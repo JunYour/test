@@ -314,20 +314,19 @@
     // 处理参考照片
     async function processReferenceImage() {
 
-      let detection = null; // 显式初始化为 null
 
       try {
         matchResult.className = 'match-result checking';
         matchResult.textContent = '正在分析参考照片...';
         await referenceImg.decode();
 
-        detection = await faceapi
+        const detection = await faceapi
           .detectSingleFace(referenceImg)
           .withFaceLandmarks()
           .withFaceDescriptor();
 
 
-        if (!detection === undefined) {
+        if (detection) {
           console.log(detection)
           referenceFaceDescriptor = detection.descriptor;
 
@@ -347,12 +346,19 @@
           console.log('参考人脸特征已提取');
         } else {
 
+          const ctx = referenceCanvas.getContext('2d');
+          ctx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
+
           matchResult.style.display = 'block';
           matchResult.className = 'match-result error';
           matchResult.textContent = '✗ 未在照片中检测到人脸，请重新上传';
           referenceFaceDescriptor = null;
         }
       } catch (error) {
+
+        const ctx = referenceCanvas.getContext('2d');
+        ctx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
+
         matchResult.style.display = 'block';
         console.error('处理参考照片错误:', error);
         matchResult.className = 'match-result error';
