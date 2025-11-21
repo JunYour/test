@@ -2,1045 +2,527 @@
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel数据处理工具</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face-API.js 人脸比对示例</title>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-        .container {
-            max-width: 1600px;
-            /* Increased max-width for 3 columns */
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        .title {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
 
-        .upload-section {
-            background: #f8f9ff;
-            border: 2px dashed #667eea;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
-        }
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 20px;
+    }
 
-        .upload-section:hover {
-            background: #f0f2ff;
-            border-color: #5a6fd8;
-        }
+    .section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+    }
 
-        .file-input {
-            display: none;
-        }
+    .section h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #555;
+    }
 
-        .upload-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
+    .video-container {
+      position: relative;
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      background: #000;
+    }
 
-        .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
+    #video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
-        .process-section {
-            display: grid;
-            /* Changed to be responsive for 3 items */
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
 
-        .process-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e0e6ff;
-            display: flex;
-            /* Added for flex layout */
-            flex-direction: column;
-            /* Added for flex layout */
-        }
+    .reference-container {
+      position: relative;
+      width: 100%;
+      min-height: 200px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      background: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .process-card>*:last-child {
-            margin-top: auto;
-            /* Pushes the result area to the bottom */
-        }
+    #referenceImg {
+      max-width: 100%;
+      max-height: 400px;
+      display: none;
+    }
 
-        .process-card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    #referenceCanvas {
+      position: absolute;
+      top: 0;
+      left: 114px;
+    }
 
-        .icon {
-            font-size: 1.5rem;
-        }
+    .upload-area {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
 
-        .process-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-bottom: 15px;
-        }
+    .upload-area.hidden {
+      display: none;
+    }
 
-        .process-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-        }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
 
-        .process-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-        .result-area {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 1px solid #e0e6ff;
-        }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
+    button:active {
+      transform: translateY(0);
+    }
 
-        .data-table th,
-        .data-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
 
-        .data-table th {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            font-weight: 600;
-        }
+    button.secondary {
+      background: #6c757d;
+    }
 
-        .data-table tr:nth-child(even) {
-            background-color: #f8f9ff;
-        }
+    input[type="file"] {
+      display: none;
+    }
 
-        .download-btn {
-            background: linear-gradient(45deg, #FF6B6B, #ee5a52);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 15px;
-        }
+    .status {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
 
-        .download-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-        }
+    .status.loading {
+      background: #fff3cd;
+      color: #856404;
+    }
 
-        .sample-data {
-            background: #f0f8ff;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+    .status.ready {
+      background: #d4edda;
+      color: #155724;
+    }
 
-        .sample-data h4 {
-            color: #333;
-            margin-bottom: 10px;
-        }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
 
-        @media (max-width: 768px) {
-            .process-section {
-                grid-template-columns: 1fr;
-            }
+    .match-result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      display: none;
+    }
 
-            .title {
-                font-size: 2rem;
-            }
-        }
-    </style>
+    .match-result.match {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .match-result.no-match {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    .match-result.checking {
+      background: #d1ecf1;
+      color: #0c5460;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1 class="title">📊 Excel数据处理工具</h1>
+  <div class="container">
+    <h1>🎭 人脸识别与比对</h1>
 
-        <div class="upload-section">
-            <h3>📁 上传Excel文件</h3>
-            <p style="color: #666; margin: 10px 0;">支持.xlsx和.xls格式</p>
-            <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                选择文件
-            </button>
-            <div id="fileName" style="margin-top: 10px; color: #666;"></div>
+    <div id="status" class="status loading">正在加载模型...</div>
 
-            <div id="sheetSelector" style="margin-top: 20px; display: none;">
-                <h4 style="color: #333; margin-bottom: 10px;">📋 选择要处理的工作表：</h4>
-                <select id="sheetSelect"
-                    style="padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 1rem; width: 100%; max-width: 300px;">
-                </select>
-                <button class="upload-btn" onclick="loadSelectedSheet()" style="margin-top: 10px; padding: 10px 20px;">
-                    加载选中的工作表
-                </button>
-            </div>
-
-            <div id="dataPreview" style="margin-top: 20px; display: none;">
-                <h4 style="color: #333;">📊 数据预览（前5行）：</h4>
-                <div id="previewTable" style="margin-top: 10px; overflow-x: auto;"></div>
-            </div>
+    <div class="content">
+      <div class="section">
+        <h2>📷 实时摄像头</h2>
+        <div class="video-container">
+          <video id="video" autoplay muted></video>
+          <canvas id="canvas"></canvas>
         </div>
-
-        <div class="process-section">
-            <div class="process-card">
-                <h3><span class="icon">🔄</span>数据去重处理</h3>
-                <p style="color: #666; margin-bottom: 15px;">基于选择的列移除重复的行数据</p>
-
-                <div id="dedupeColumnSelector" style="margin-bottom: 15px; display: none;">
-                    <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">🎯 选择去重依据列：</h4>
-
-                        <div style="margin-bottom: 10px;">
-                            <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                                🔍 去重模式：
-                            </label>
-                            <select id="dedupeMode"
-                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;"
-                                onchange="toggleDedupeColumns()">
-                                <option value="all">完整行去重（所有列都相同才算重复）</option>
-                                <option value="selected">指定列去重（选择的列相同就算重复）</option>
-                            </select>
-                        </div>
-
-                        <div id="dedupeColumnsSelection" style="margin-bottom: 10px; display: none;">
-                            <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                                📋 选择去重依据列（多选）：
-                            </label>
-                            <div id="dedupeColumnsCheckboxes"
-                                style="max-height: 120px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: white;">
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                                ⚙️ 保留策略：
-                            </label>
-                            <select id="keepStrategy"
-                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
-                                <option value="first">保留第一次出现的数据</option>
-                                <option value="last">保留最后一次出现的数据</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="process-btn" id="dedupeBtn" onclick="deduplicateData()" disabled>
-                    执行去重
-                </button>
-                <div class="sample-data">
-                    <h4>示例数据格式：</h4>
-                    <pre style="color: #555; font-size: 0.9rem;">李四  数学: 60
-李四  语文: 60
-李四  数学: 60  ← 重复行</pre>
-                    <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">*可选择基于所有列或指定列进行去重</p>
-                </div>
-                <div class="result-area" style="max-height: 600px;
-    overflow: auto;" id="dedupeResult"></div>
-            </div>
-
-            <div class="process-card">
-                <h3><span class="icon">📋</span>数据合并处理</h3>
-                <p style="color: #666; margin-bottom: 15px;">将同学生的科目成绩合并到一行</p>
-
-                <div id="columnSelector" style="margin-bottom: 15px; display: none;">
-                    <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">🎯 选择合并列：</h4>
-
-                        <div style="margin-bottom: 10px;">
-                            <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                                📝 分组依据列（相同值会被合并）：
-                            </label>
-                            <select id="groupByColumn"
-                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
-                            </select>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                                🔗 要合并的列（多选）：
-                            </label>
-                            <div id="mergeColumnsCheckboxes"
-                                style="max-height: 120px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: white;">
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                                ⚙️ 合并分隔符：
-                            </label>
-                            <select id="separator"
-                                style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
-                                <option value=", ">逗号 (,)</option>
-                                <option value=" | ">竖线 (|)</option>
-                                <option value="; ">分号 (;)</option>
-                                <option value=" / ">斜线 (/)</option>
-                                <option value=" - ">横线 (-)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="process-btn" id="mergeBtn" onclick="mergeData()" disabled>
-                    执行合并
-                </button>
-                <div class="sample-data">
-                    <h4>合并后格式：</h4>
-                    <pre style="color: #555; font-size: 0.9rem;">李四  数学: 60, 语文: 60, 英文: 60</pre>
-                    <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">*可自定义分组列和合并列</p>
-                </div>
-                <div class="result-area" style="max-height: 600px;overflow: auto;" id="mergeResult"></div>
-            </div>
-
-            <div class="process-card">
-                <h3><span class="icon">✨</span>条件赋值处理</h3>
-                <p style="color: #666; margin-bottom: 15px;">根据指定列的条件，将一列的值赋给另一列。</p>
-
-                <div id="conditionalAssignSelector" style="margin-bottom: 15px; display: none;">
-                    <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">🎯 设置赋值规则：</h4>
-
-                        <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                            IF (如果):
-                        </label>
-                        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                            <select id="conditionColumn"
-                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-bottom:10px;"></select>
-                            <select id="conditionOperator" onchange="toggleConditionValueInput()"
-                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-bottom:10px;">
-                                <option value="==">等于 (==)</option>
-                                <option value="!=">不等于 (!=)</option>
-                                <option value="contains">包含 (contains)</option>
-                                <option value="not-contains">不包含 (not contains)</option>
-                                <option value="is-empty">为空 (is empty)</option>
-                                <option value="is-not-empty">不为空 (is not empty)</option>
-                                <option value=">">大于 (>)</option>
-                                <option value="<">小于 (<)< /option>
-                                <option value=">=">大于等于 (>=)</option>
-                                <option value="<=">小于等于 (<=)< /option>
-                            </select>
-                            <input type="text" id="conditionValue" placeholder="输入条件值"
-                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
-                        </div>
-
-                        <label style="display: block; font-weight: 600; color: #555; margin-bottom: 5px;">
-                            THEN (那么):
-                        </label>
-                        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
-                            <label style="font-size: 0.9rem; color: #555;">将此列:</label>
-                            <select id="destinationColumn"
-                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-bottom:10px;"></select>
-                            <label style="font-size: 0.9rem; color: #555;">的值设为这一列的值:</label>
-                            <select id="sourceColumn"
-                                style="width:100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"></select>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="process-btn" id="conditionalAssignBtn" onclick="performConditionalAssignment()" disabled>
-                    执行赋值
-                </button>
-                <div class="sample-data">
-                    <h4>示例逻辑：</h4>
-                    <pre style="color: #555; font-size: 0.9rem;">如果 [订单状态列] 等于 "已支付",
-那么将 [发货状态列] 设为 [默认状态列] 的值</pre>
-                    <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">*源列和目标列可以是同一列</p>
-                </div>
-                <div class="result-area" style="max-height: 600px;overflow: auto;" id="conditionalAssignResult"></div>
-            </div>
+        <div class="controls">
+          <button id="startBtn" disabled>开启摄像头</button>
+          <button id="stopBtn" disabled>关闭摄像头</button>
         </div>
+      </div>
 
-        <div
-            style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border: 1px solid #e0e6ff; margin-bottom: 20px;">
-            <h3 style="color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <span class="icon" style="font-size: 1.5rem;">🗂️</span>
-                数据管理中心
-            </h3>
-
-            <div
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <button class="process-btn" onclick="showOriginalData()" id="showOriginalBtn" disabled
-                    style="background: linear-gradient(45deg, #3498db, #2980b9);">
-                    📋 查看原始数据
-                </button>
-                <button class="process-btn" onclick="exportMultipleSheets()" id="exportMultipleBtn" disabled
-                    style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
-                    📦 导出所有结果到一个Excel
-                </button>
-                <button class="process-btn" onclick="clearAllData()"
-                    style="background: linear-gradient(45deg, #95a5a6, #7f8c8d);">
-                    🗑️ 清空所有数据
-                </button>
-            </div>
-
-            <div class="result-area" style="max-height: 600px;
-    overflow: auto;" id="originalDataResult"></div>
+      <div class="section">
+        <h2>🖼️ 参考照片</h2>
+        <div class="reference-container" id="referenceContainer">
+          <div class="upload-area" id="uploadArea">
+            <p>📁 点击下方按钮上传参考人脸照片</p>
+          </div>
+          <img id="referenceImg" alt="参考照片">
+          <canvas id="referenceCanvas"></canvas>
         </div>
+        <div class="controls">
+          <button onclick="document.getElementById('fileInput').click()">上传照片</button>
+          <button class="secondary" id="clearBtn" disabled>清除照片</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="matchResult" class="match-result"></div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let workbook = null;
-        let originalData = [];
-        let deduplicatedData = [];
-        let mergedData = [];
-        let conditionalAssignResult = []; // NEW: for conditional assignment result
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const referenceImg = document.getElementById('referenceImg');
+    const referenceCanvas = document.getElementById('referenceCanvas');
+    const statusDiv = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const matchResult = document.getElementById('matchResult');
 
-        document.getElementById('fileInput').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('fileName').textContent = `已选择: ${file.name}`;
-                readExcelFile(file);
-            }
+    let stream = null;
+    let isDetecting = false;
+    let referenceFaceDescriptor = null;
+
+    // 加载模型
+    async function loadModels() {
+      const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+
+      try {
+        statusDiv.textContent = '正在加载人脸检测模型...';
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+
+        statusDiv.textContent = '正在加载特征点模型...';
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+
+        statusDiv.textContent = '正在加载人脸识别模型...';
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+        statusDiv.className = 'status ready';
+        statusDiv.textContent = '✓ 模型加载完成！请上传参考照片并开启摄像头';
+        startBtn.disabled = false;
+      } catch (error) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '✗ 模型加载失败: ' + error.message;
+        console.error('Error loading models:', error);
+      }
+    }
+
+    // 处理上传的照片
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+
+
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        referenceImg.src = event.target.result;
+        referenceImg.style.display = 'block';
+        uploadArea.classList.add('hidden');
+        clearBtn.disabled = false;
+
+        await processReferenceImage();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 处理参考照片
+    async function processReferenceImage() {
+      try {
+        matchResult.className = 'match-result checking';
+        matchResult.textContent = '正在分析参考照片...';
+        await referenceImg.decode();
+
+        const detection = await faceapi
+          .detectSingleFace(referenceImg)
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+
+        if (detection) {
+
+          referenceFaceDescriptor = detection.descriptor;
+
+          // 绘制检测结果
+          const displaySize = { width: referenceImg.width, height: referenceImg.height };
+          referenceCanvas.width = displaySize.width;
+          referenceCanvas.height = displaySize.height;
+
+          const resizedDetection = faceapi.resizeResults(detection, displaySize);
+          faceapi.draw.drawDetections(referenceCanvas, resizedDetection);
+          faceapi.draw.drawFaceLandmarks(referenceCanvas, resizedDetection);
+
+          matchResult.className = 'match-result ready';
+          matchResult.textContent = '✓ 参考人脸已识别，可以开始比对';
+
+          console.log('参考人脸特征已提取');
+        } else {
+          matchResult.className = 'match-result error';
+          matchResult.textContent = '✗ 未在照片中检测到人脸，请重新上传';
+          referenceFaceDescriptor = null;
+        }
+      } catch (error) {
+        console.error('处理参考照片错误:', error);
+        matchResult.className = 'match-result error';
+        matchResult.textContent = '✗ 处理照片失败: ' + error.message;
+      }
+    }
+
+    // 清除参考照片
+    clearBtn.addEventListener('click', () => {
+      referenceImg.src = '';
+      referenceImg.style.display = 'none';
+      uploadArea.classList.remove('hidden');
+      clearBtn.disabled = true;
+      referenceFaceDescriptor = null;
+      matchResult.style.display = 'none';
+
+      const ctx = referenceCanvas.getContext('2d');
+      ctx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
+
+      fileInput.value = '';
+    });
+
+    // 开启摄像头
+    async function startVideo() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480 }
+        });
+        video.srcObject = stream;
+
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            video.play();
+            resolve();
+          };
         });
 
-        function readExcelFile(file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    workbook = XLSX.read(data, { type: 'array' });
+        await new Promise((resolve) => {
+          video.oncanplay = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
+            resolve();
+          };
+        });
 
-                    // 显示工作表选择器
-                    displaySheetSelector(workbook.SheetNames);
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
 
-                } catch (error) {
-                    alert('文件读取错误: ' + error.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
+        isDetecting = true;
+        detectFaces();
+      } catch (error) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '✗ 无法访问摄像头: ' + error.message;
+        console.error('Error accessing webcam:', error);
+      }
+    }
 
-        function displaySheetSelector(sheetNames) {
-            const sheetSelector = document.getElementById('sheetSelector');
-            const sheetSelect = document.getElementById('sheetSelect');
+    // 停止摄像头
+    function stopVideo() {
+      isDetecting = false;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
 
-            // 清空选项
-            sheetSelect.innerHTML = '';
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 添加工作表选项
-            sheetNames.forEach((sheetName, index) => {
-                const option = document.createElement('option');
-                option.value = sheetName;
-                option.textContent = `${sheetName} (工作表${index + 1})`;
-                sheetSelect.appendChild(option);
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+
+      if (referenceFaceDescriptor) {
+        matchResult.className = 'match-result';
+        matchResult.textContent = '摄像头已关闭';
+      }
+    }
+
+    // 人脸检测与比对
+    async function detectFaces() {
+      if (!isDetecting) return;
+
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+        requestAnimationFrame(detectFaces);
+        return;
+      }
+
+      try {
+        const detections = await faceapi
+          .detectAllFaces(video)
+          .withFaceLandmarks()
+          .withFaceDescriptors();
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (detections.length > 0) {
+          const resizedDetections = faceapi.resizeResults(detections, {
+            width: canvas.width - 120,
+            height: canvas.height - 90
+          });
+
+          faceapi.draw.drawDetections(canvas, resizedDetections);
+          faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+
+          console.log("referenceFaceDescriptor", referenceFaceDescriptor)
+          // 如果有参考人脸，进行比对
+          if (referenceFaceDescriptor) {
+            let bestMatch = null;
+            let bestDistance = 1;
+
+            resizedDetections.forEach(detection => {
+              const distance = faceapi.euclideanDistance(
+                referenceFaceDescriptor,
+                detection.descriptor
+              );
+
+              if (distance < bestDistance) {
+                bestDistance = distance;
+                bestMatch = detection;
+              }
+
+              // 在人脸框上显示相似度
+              const similarity = ((1 - distance) * 100).toFixed(1);
+              const box = detection.detection.box;
+              const drawBox = new faceapi.draw.DrawBox(box, {
+                label: `相似度: ${similarity}%`
+              });
+              drawBox.draw(canvas);
             });
 
-            sheetSelector.style.display = 'block';
-
-            // 默认加载第一个工作表
-            if (sheetNames.length > 0) {
-                loadSheet(sheetNames[0]);
-            }
-        }
-
-        function loadSelectedSheet() {
-            const selectedSheet = document.getElementById('sheetSelect').value;
-            loadSheet(selectedSheet);
-        }
-
-        function loadSheet(sheetName) {
-            try {
-                const worksheet = workbook.Sheets[sheetName];
-
-                // 转换为JSON数组
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                    header: 1,
-                    defval: ""
-                });
-
-                originalData = jsonData.filter(row => row.some(cell => cell !== ""));
-
-                // 显示数据预览
-                displayDataPreview(originalData, sheetName);
-
-                // 启用处理按钮和数据管理按钮
-                document.getElementById('dedupeBtn').disabled = false;
-                document.getElementById('mergeBtn').disabled = false;
-                document.getElementById('conditionalAssignBtn').disabled = false; // NEW
-                document.getElementById('showOriginalBtn').disabled = false;
-                document.getElementById('exportMultipleBtn').disabled = false;
-
-                // 清空之前的结果
-                document.getElementById('dedupeResult').innerHTML = '';
-                document.getElementById('mergeResult').innerHTML = '';
-                document.getElementById('conditionalAssignResult').innerHTML = ''; // NEW
-                deduplicatedData = [];
-                mergedData = [];
-                conditionalAssignResult = []; // NEW
-
-                console.log(`${sheetName} 数据:`, originalData);
-
-            } catch (error) {
-                alert('工作表读取错误: ' + error.message);
-            }
-        }
-
-        function displayDataPreview(data, sheetName) {
-            const previewDiv = document.getElementById('dataPreview');
-            const previewTable = document.getElementById('previewTable');
-
-            if (data.length === 0) {
-                previewDiv.style.display = 'none';
-                return;
-            }
-
-            // 只显示前5行数据
-            const previewData = data.slice(0, 5);
-
-            let html = `<p style="color: #666; margin-bottom: 10px;">工作表: <strong>${sheetName}</strong> | 总行数: <strong>${data.length}</strong></p>`;
-            html += '<table class="data-table" style="font-size: 0.9rem;">';
-
-            // 表头
-            if (previewData.length > 0) {
-                const maxCols = Math.max(...previewData.map(row => row.length));
-                html += '<tr>';
-                for (let i = 0; i < maxCols; i++) {
-                    html += `<th>列${String.fromCharCode(65 + i)}</th>`;
-                }
-                html += '</tr>';
-            }
-
-            // 数据行
-            previewData.forEach((row, index) => {
-                html += '<tr>';
-                row.forEach(cell => {
-                    html += `<td>${cell || ''}</td>`;
-                });
-                html += '</tr>';
-            });
-
-            html += '</table>';
-
-            if (data.length > 5) {
-                html += '<p style="color: #888; font-size: 0.9rem; margin-top: 10px;">... 还有更多数据</p>';
-            }
-
-            previewTable.innerHTML = html;
-            previewDiv.style.display = 'block';
-
-            // 生成列选择器
-            generateColumnSelectors(data);
-        }
-
-        function generateColumnSelectors(data) {
-            if (data.length === 0) return;
-
-            // Selectors for Merge
-            const columnSelector = document.getElementById('columnSelector');
-            const groupByColumn = document.getElementById('groupByColumn');
-            const mergeColumnsCheckboxes = document.getElementById('mergeColumnsCheckboxes');
-
-            // Selectors for Dedupe
-            const dedupeColumnSelector = document.getElementById('dedupeColumnSelector');
-            const dedupeColumnsCheckboxes = document.getElementById('dedupeColumnsCheckboxes');
-
-            // NEW: Selectors for Conditional Assign
-            const conditionalAssignSelector = document.getElementById('conditionalAssignSelector');
-            const conditionColumn = document.getElementById('conditionColumn');
-            const sourceColumn = document.getElementById('sourceColumn');
-            const destinationColumn = document.getElementById('destinationColumn');
-
-            // Clear existing options
-            groupByColumn.innerHTML = '';
-            mergeColumnsCheckboxes.innerHTML = '';
-            dedupeColumnsCheckboxes.innerHTML = '';
-            conditionColumn.innerHTML = ''; // NEW
-            sourceColumn.innerHTML = ''; // NEW
-            destinationColumn.innerHTML = ''; // NEW
-
-            // 获取列数
-            const maxColumns = Math.max(...data.map(row => row.length));
-
-            for (let i = 0; i < maxColumns; i++) {
-                const columnLetter = String.fromCharCode(65 + i);
-                const optionText = `列${columnLetter} (第${i + 1}列)`;
-
-                // Option for dropdowns
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = optionText;
-
-                // Option for dropdowns (cloned)
-                groupByColumn.appendChild(option.cloneNode(true));
-                conditionColumn.appendChild(option.cloneNode(true));
-                sourceColumn.appendChild(option.cloneNode(true));
-                destinationColumn.appendChild(option.cloneNode(true));
-
-                // Checkboxes for Merge
-                const mergeCheckboxDiv = document.createElement('div');
-                mergeCheckboxDiv.innerHTML = `<input type="checkbox" id="mergeCol${i}" value="${i}" style="margin-right: 8px;"><label for="mergeCol${i}" style="cursor: pointer;">${optionText}</label>`;
-                mergeColumnsCheckboxes.appendChild(mergeCheckboxDiv);
-
-                // Checkboxes for Dedupe
-                const dedupeCheckboxDiv = document.createElement('div');
-                dedupeCheckboxDiv.innerHTML = `<input type="checkbox" id="dedupeCol${i}" value="${i}" style="margin-right: 8px;"><label for="dedupeCol${i}" style="cursor: pointer;">${optionText}</label>`;
-                dedupeColumnsCheckboxes.appendChild(dedupeCheckboxDiv);
-            }
-
-            // 默认选择：第一列作为分组，其他列作为合并（合并功能）
-            if (maxColumns > 1) {
-                groupByColumn.value = '0';
-                for (let i = 1; i < maxColumns; i++) {
-                    document.getElementById(`mergeCol${i}`).checked = true;
-                }
-            }
-
-            // 默认选择：所有列都选中（去重功能）
-            for (let i = 0; i < maxColumns; i++) {
-                document.getElementById(`dedupeCol${i}`).checked = true;
-            }
-
-            columnSelector.style.display = 'block';
-            dedupeColumnSelector.style.display = 'block';
-            conditionalAssignSelector.style.display = 'block'; // NEW
-        }
-
-        function toggleDedupeColumns() {
-            const dedupeMode = document.getElementById('dedupeMode').value;
-            const dedupeColumnsSelection = document.getElementById('dedupeColumnsSelection');
-
-            dedupeColumnsSelection.style.display = (dedupeMode === 'selected') ? 'block' : 'none';
-        }
-
-        // NEW: Hide condition value input if operator is is-empty or is-not-empty
-        function toggleConditionValueInput() {
-            const operator = document.getElementById('conditionOperator').value;
-            const valueInput = document.getElementById('conditionValue');
-            valueInput.style.display = (operator === 'is-empty' || operator === 'is-not-empty') ? 'none' : 'block';
-        }
-
-        function deduplicateData() {
-            if (originalData.length === 0) {
-                alert('请先上传文件并选择工作表');
-                return;
-            }
-
-            const dedupeMode = document.getElementById('dedupeMode').value;
-            const keepStrategy = document.getElementById('keepStrategy').value;
-
-            let dedupeColumnIndices = [];
-
-            if (dedupeMode === 'selected') {
-                const maxColumns = Math.max(...originalData.map(row => row.length));
-                for (let i = 0; i < maxColumns; i++) {
-                    const checkbox = document.getElementById(`dedupeCol${i}`);
-                    if (checkbox && checkbox.checked) {
-                        dedupeColumnIndices.push(i);
-                    }
-                }
-
-                if (dedupeColumnIndices.length === 0) {
-                    alert('请至少选择一列作为去重依据');
-                    return;
-                }
-            }
-
-            const seen = new Map();
-            const duplicateIndexes = new Set();
-
-            originalData.forEach((row, index) => {
-                let keyStr;
-
-                if (dedupeMode === 'all') {
-                    keyStr = JSON.stringify(row);
-                } else {
-                    const keyValues = dedupeColumnIndices.map(colIndex =>
-                        row[colIndex] !== undefined ? row[colIndex] : ''
-                    );
-                    keyStr = JSON.stringify(keyValues);
-                }
-
-                if (seen.has(keyStr)) {
-                    const firstIndex = seen.get(keyStr);
-                    if (keepStrategy === 'first') {
-                        duplicateIndexes.add(index);
-                    } else {
-                        duplicateIndexes.add(firstIndex);
-                        seen.set(keyStr, index);
-                    }
-                } else {
-                    seen.set(keyStr, index);
-                }
-            });
-
-            deduplicatedData = originalData.filter((row, index) => !duplicateIndexes.has(index));
-
-            const removedCount = originalData.length - deduplicatedData.length;
-            let reportTitle = `去重后数据 (原始${originalData.length}行，去除${removedCount}行重复数据)`;
-
-            if (dedupeMode === 'selected') {
-                const selectedColumns = dedupeColumnIndices.map(i =>
-                    `列${String.fromCharCode(65 + i)}`
-                ).join(', ');
-                reportTitle += ` | 基于列: ${selectedColumns}`;
+            // 阈值：0.6 以下认为是同一个人
+            if (bestDistance < 0.6) {
+              const similarity = ((1 - bestDistance) * 100).toFixed(1);
+              matchResult.className = 'match-result match';
+              matchResult.textContent = `✓ 匹配成功！相似度: ${similarity}%`;
             } else {
-                reportTitle += ' | 基于: 完整行';
+              matchResult.className = 'match-result no-match';
+              matchResult.textContent = `✗ 未匹配 (相似度过低)`;
             }
-
-            reportTitle += ` | 策略: ${keepStrategy === 'first' ? '保留首次出现' : '保留最后出现'}`;
-
-            displayResult('dedupeResult', deduplicatedData, reportTitle);
-            console.log('去重后数据:', deduplicatedData);
+          } else {
+            matchResult.className = 'match-result checking';
+            matchResult.textContent = `检测到 ${detections.length} 张人脸，请先上传参考照片`;
+          }
+        } else {
+          if (referenceFaceDescriptor) {
+            matchResult.className = 'match-result checking';
+            matchResult.textContent = '未检测到人脸';
+          }
         }
+      } catch (error) {
+        console.error('Detection error:', error);
+      }
 
-        function mergeData() {
-            if (originalData.length === 0) {
-                alert('请先上传文件并选择工作表');
-                return;
-            }
+      requestAnimationFrame(detectFaces);
+    }
 
-            const groupByColumnIndex = parseInt(document.getElementById('groupByColumn').value);
-            const separator = document.getElementById('separator').value;
+    // 事件监听
+    startBtn.addEventListener('click', startVideo);
+    stopBtn.addEventListener('click', stopVideo);
 
-            const mergeColumnIndices = [];
-            const maxColumns = Math.max(...originalData.map(row => row.length));
-            for (let i = 0; i < maxColumns; i++) {
-                const checkbox = document.getElementById(`mergeCol${i}`);
-                if (checkbox && checkbox.checked) {
-                    mergeColumnIndices.push(i);
-                }
-            }
+    // 等待加载
+    function waitForFaceAPI() {
+      if (typeof faceapi !== 'undefined') {
+        console.log('face-api.js loaded successfully');
+        loadModels();
+      } else {
+        console.log('Waiting for face-api.js...');
+        setTimeout(waitForFaceAPI, 200);
+      }
+    }
 
-            if (mergeColumnIndices.length === 0) {
-                alert('请至少选择一列进行合并');
-                return;
-            }
-
-            const grouped = {};
-
-            originalData.forEach(row => {
-                if (row.length > groupByColumnIndex) {
-                    const groupKey = row[groupByColumnIndex] || '';
-
-                    if (!grouped[groupKey]) {
-                        grouped[groupKey] = {};
-                        mergeColumnIndices.forEach(colIndex => {
-                            grouped[groupKey][colIndex] = [];
-                        });
-                    }
-
-                    mergeColumnIndices.forEach(colIndex => {
-                        if (row.length > colIndex && row[colIndex] != null) {
-                            const value = String(row[colIndex]).trim();
-                            if (value && !grouped[groupKey][colIndex].includes(value)) {
-                                grouped[groupKey][colIndex].push(value);
-                            }
-                        }
-                    });
-                }
-            });
-
-            const headers = [`分组列 (列${String.fromCharCode(65 + groupByColumnIndex)})`];
-            mergeColumnIndices.forEach(colIndex => {
-                headers.push(`合并列 (列${String.fromCharCode(65 + colIndex)})`);
-            });
-
-            mergedData = Object.keys(grouped).map(groupKey => {
-                const resultRow = [groupKey];
-                mergeColumnIndices.forEach(colIndex => {
-                    resultRow.push(grouped[groupKey][colIndex].join(separator));
-                });
-                return resultRow;
-            });
-
-            displayResultWithHeaders('mergeResult', mergedData, '合并后数据', headers);
-            console.log('合并后数据:', mergedData);
-        }
-
-        // NEW: Conditional Assignment Logic
-        function performConditionalAssignment() {
-            if (originalData.length === 0) {
-                alert('请先上传文件并选择工作表');
-                return;
-            }
-
-            const conditionColIndex = parseInt(document.getElementById('conditionColumn').value);
-            const operator = document.getElementById('conditionOperator').value;
-            const conditionValue = document.getElementById('conditionValue').value;
-            const sourceColIndex = parseInt(document.getElementById('sourceColumn').value);
-            const destColIndex = parseInt(document.getElementById('destinationColumn').value);
-
-            // Create a deep copy to avoid modifying originalData
-            const processedData = JSON.parse(JSON.stringify(originalData));
-            let rowsAffected = 0;
-
-            processedData.forEach(row => {
-                const valueToCheck = row[conditionColIndex];
-
-                if (evaluateCondition(valueToCheck, operator, conditionValue)) {
-                    const sourceValue = row[sourceColIndex] !== undefined ? row[sourceColIndex] : '';
-
-                    // Pad the row with empty strings if destination index is out of bounds
-                    while (row.length <= destColIndex) {
-                        row.push('');
-                    }
-
-                    row[destColIndex] = sourceValue;
-                    rowsAffected++;
-                }
-            });
-
-            conditionalAssignResult = processedData;
-            const reportTitle = `条件赋值后数据 (${rowsAffected} 行被修改)`;
-            displayResult('conditionalAssignResult', conditionalAssignResult, reportTitle);
-            console.log('Conditional assignment result:', conditionalAssignResult);
-        }
-
-        // NEW: Helper function to evaluate conditions
-        function evaluateCondition(val1, operator, val2) {
-            const v1 = (val1 === undefined || val1 === null) ? '' : String(val1).trim();
-            const v2 = (val2 === undefined || val2 === null) ? '' : String(val2).trim();
-
-            if (operator === 'is-empty') return v1 === '';
-            if (operator === 'is-not-empty') return v1 !== '';
-
-            const num1 = parseFloat(v1);
-            const num2 = parseFloat(v2);
-            // A valid numeric comparison happens if both values are numbers and are not empty strings
-            const isNumeric = !isNaN(num1) && !isNaN(num2) && v1 !== '' && v2 !== '';
-
-            switch (operator) {
-                case '==': return v1 === v2;
-                case '!=': return v1 !== v2;
-                case '>': return isNumeric ? num1 > num2 : v1 > v2;
-                case '<': return isNumeric ? num1 < num2 : v1 < v2;
-                case '>=': return isNumeric ? num1 >= num2 : v1 >= v2;
-                case '<=': return isNumeric ? num1 <= num2 : v1 <= v2;
-                case 'contains': return v1.includes(v2);
-                case 'not-contains': return !v1.includes(v2);
-                default: return false;
-            }
-        }
-
-
-        function displayResult(containerId, data, title) {
-            displayResultWithHeaders(containerId, data, title, null);
-        }
-
-        // REVISED: To handle rows with varying lengths correctly
-        function displayResultWithHeaders(containerId, data, title, headers) {
-            const container = document.getElementById(containerId);
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `<p style="color:#888;">${title ? title + ': ' : ''}没有数据可显示</p>`;
-                return;
-            }
-
-            let html = `<h4>${title} (共${data.length}行)</h4>`;
-            html += '<table class="data-table">';
-
-            const maxCols = Math.max(...data.map(row => (row ? row.length : 0)));
-
-            // Table Header
-            html += '<thead><tr>';
-            if (headers && headers.length > 0) {
-                headers.forEach(header => {
-                    html += `<th>${header}</th>`;
-                });
-                for (let i = headers.length; i < maxCols; i++) {
-                    html += `<th>列${String.fromCharCode(65 + i)}</th>`;
-                }
-            } else {
-                for (let i = 0; i < maxCols; i++) {
-                    html += `<th>列${String.fromCharCode(65 + i)}</th>`;
-                }
-            }
-            html += '</tr></thead>';
-
-            // Table Body
-            html += '<tbody>';
-            data.forEach(row => {
-                html += '<tr>';
-                for (let i = 0; i < maxCols; i++) {
-                    const cell = row ? row[i] : undefined;
-                    html += `<td>${(cell !== undefined && cell !== null) ? cell : ''}</td>`;
-                }
-                html += '</tr>';
-            });
-            html += '</tbody>';
-
-            html += '</table>';
-            html += `<button class="download-btn" onclick="downloadData('${containerId}')">下载Excel文件</button>`;
-            container.innerHTML = html;
-        }
-
-        function downloadData(type) {
-            let dataToDownload = [];
-            let filename = '';
-
-            if (type === 'dedupeResult') {
-                dataToDownload = deduplicatedData;
-                filename = '去重后数据.xlsx';
-            } else if (type === 'mergeResult') {
-                dataToDownload = mergedData;
-                filename = '合并后数据.xlsx';
-            } else if (type === 'conditionalAssignResult') { // NEW
-                dataToDownload = conditionalAssignResult;
-                filename = '条件赋值后数据.xlsx';
-            } else if (type === 'originalDataResult') {
-                dataToDownload = originalData;
-                filename = '原始数据.xlsx';
-            }
-
-            if (dataToDownload.length === 0) {
-                alert('没有数据可下载');
-                return;
-            }
-
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(dataToDownload);
-
-            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-            XLSX.writeFile(wb, filename);
-        }
-
-        function showOriginalData() {
-            if (originalData.length === 0) {
-                alert('没有原始数据可显示');
-                return;
-            }
-
-            const currentSheet = document.getElementById('sheetSelect').value || '原始数据';
-            displayResult('originalDataResult', originalData, `原始数据 (${currentSheet})`);
-        }
-
-        function exportMultipleSheets() {
-            if (originalData.length === 0) {
-                alert('没有数据可导出');
-                return;
-            }
-
-            const wb = XLSX.utils.book_new();
-            let alertMsg = '';
-
-            if (originalData.length > 0) {
-                const wsOriginal = XLSX.utils.aoa_to_sheet(originalData);
-                XLSX.utils.book_append_sheet(wb, wsOriginal, "原始数据");
-                alertMsg += `- 原始数据 (${originalData.length}行)\n`;
-            }
-
-            if (deduplicatedData.length > 0) {
-                const wsDedupe = XLSX.utils.aoa_to_sheet(deduplicatedData);
-                XLSX.utils.book_append_sheet(wb, wsDedupe, "去重后数据");
-                alertMsg += `- 去重后数据 (${deduplicatedData.length}行)\n`;
-            }
-
-            if (mergedData.length > 0) {
-                const wsMerged = XLSX.utils.aoa_to_sheet(mergedData);
-                XLSX.utils.book_append_sheet(wb, wsMerged, "合并后数据");
-                alertMsg += `- 合并后数据 (${mergedData.length}行)\n`;
-            }
-
-            if (conditionalAssignResult.length > 0) { // NEW
-                const wsAssigned = XLSX.utils.aoa_to_sheet(conditionalAssignResult);
-                XLSX.utils.book_append_sheet(wb, wsAssigned, "条件赋值后数据");
-                alertMsg += `- 条件赋值后数据 (${conditionalAssignResult.length}行)`;
-            }
-
-            const timestamp = new Date().toLocaleString('zh-CN').replace(/[/:]/g, '-').replace(/\s/g, '_');
-            const filename = `数据处理结果_${timestamp}.xlsx`;
-
-            XLSX.writeFile(wb, filename);
-
-            alert(`已导出Excel文件：${filename}\n包含的工作表：\n${alertMsg}`);
-        }
-
-        function clearAllData() {
-            if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
-                workbook = null;
-                originalData = [];
-                deduplicatedData = [];
-                mergedData = [];
-                conditionalAssignResult = []; // NEW
-
-                document.getElementById('fileName').textContent = '';
-                document.getElementById('sheetSelector').style.display = 'none';
-                document.getElementById('dataPreview').style.display = 'none';
-                document.getElementById('columnSelector').style.display = 'none';
-                document.getElementById('dedupeColumnSelector').style.display = 'none';
-                document.getElementById('conditionalAssignSelector').style.display = 'none'; // NEW
-
-                document.getElementById('dedupeResult').innerHTML = '';
-                document.getElementById('mergeResult').innerHTML = '';
-                document.getElementById('originalDataResult').innerHTML = '';
-                document.getElementById('conditionalAssignResult').innerHTML = ''; // NEW
-
-                document.getElementById('dedupeBtn').disabled = true;
-                document.getElementById('mergeBtn').disabled = true;
-                document.getElementById('showOriginalBtn').disabled = true;
-                document.getElementById('exportMultipleBtn').disabled = true;
-                document.getElementById('conditionalAssignBtn').disabled = true; // NEW
-
-                document.getElementById('fileInput').value = '';
-            }
-        }
-    </script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', waitForFaceAPI);
+    } else {
+      waitForFaceAPI();
+    }
+  </script>
 </body>
 
 </html>
