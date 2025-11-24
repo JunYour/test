@@ -294,6 +294,39 @@
       display: none;
     }
 
+    .video-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 500;
+      z-index: 10;
+      display: none;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .video-overlay.match {
+      background: rgba(46, 125, 50, 0.95);
+      color: white;
+      display: block;
+    }
+
+    .video-overlay.no-match {
+      background: rgba(198, 40, 40, 0.95);
+      color: white;
+      display: block;
+    }
+
+    .video-overlay.checking {
+      background: rgba(21, 101, 192, 0.95);
+      color: white;
+      display: block;
+    }
+
     .divider {
       height: 1px;
       background: #e5e5e5;
@@ -502,6 +535,7 @@
 
         <video id="video" autoplay muted playsinline></video>
         <canvas id="canvas"></canvas>
+        <div id="videoOverlay" class="video-overlay"></div>
       </div>
     </div>
 
@@ -584,6 +618,7 @@
     const statusMessage = document.getElementById('statusMessage');
     const startBtn = document.getElementById('startBtn');
     const matchResult = document.getElementById('matchResult');
+    const videoOverlay = document.getElementById('videoOverlay');
 
     let stream = null;
     let isDetecting = false;
@@ -699,6 +734,7 @@
 
       video.style.display = 'none';
       canvas.style.display = 'none';
+      videoOverlay.style.display = 'none';
       document.querySelector('.face-placeholder').style.display = 'block';
 
       const ctx = canvas.getContext('2d');
@@ -733,43 +769,34 @@
             height: canvas.height
           });
 
-          // faceapi.draw.drawDetections(canvas, resizedDetections);
           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
           let bestMatch = null;
           let bestDistance = 1;
 
-          // resizedDetections.forEach(detection => {
-          //   const distance = faceapi.euclideanDistance(
-          //     referenceFaceDescriptor,
-          //     detection.descriptor
-          //   );
+          resizedDetections.forEach(detection => {
+            const distance = faceapi.euclideanDistance(
+              referenceFaceDescriptor,
+              detection.descriptor
+            );
 
-          //   if (distance < bestDistance) {
-          //     bestDistance = distance;
-          //     bestMatch = detection;
-          //   }
-
-          //   // const similarity = ((1 - distance) * 100).toFixed(1);
-          //   // const box = detection.detection.box;
-          //   // const drawBox = new faceapi.draw.DrawBox(box, {
-          //   //   label: `相似度: ${similarity}%`,
-          //   //   lineWidth: 2
-          //   // });
-          //   // drawBox.draw(canvas);
-          // });
+            if (distance < bestDistance) {
+              bestDistance = distance;
+              bestMatch = detection;
+            }
+          });
 
           if (bestDistance < 0.6) {
             const similarity = ((1 - bestDistance) * 100).toFixed(1);
-            matchResult.className = 'match-result match';
-            matchResult.textContent = `✓ 匹配成功！相似度: ${similarity}%`;
+            videoOverlay.className = 'video-overlay match';
+            videoOverlay.textContent = `✓ 匹配成功！相似度: ${similarity}%`;
           } else {
-            matchResult.className = 'match-result no-match';
-            matchResult.textContent = `✗ 人脸不匹配`;
+            videoOverlay.className = 'video-overlay no-match';
+            videoOverlay.textContent = `✗ 人脸不匹配`;
           }
         } else {
-          matchResult.className = 'match-result checking';
-          matchResult.textContent = `未检测到人脸，请调整位置`;
+          videoOverlay.className = 'video-overlay checking';
+          videoOverlay.textContent = `未检测到人脸，请调整位置`;
         }
       } catch (error) {
         console.error('Detection error:', error);
