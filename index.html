@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Face-API.js 人脸比对示例</title>
+  <title>人脸识别</title>
   <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <style>
     * {
@@ -14,377 +14,648 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      background: #f5f5f5;
       min-height: 100vh;
-      padding: 20px;
+    }
+
+    .status-bar {
+      background: white;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .signal-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .battery {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header {
+      background: white;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .back-btn {
+      font-size: 28px;
+      color: #999;
+      cursor: pointer;
+      line-height: 1;
+      margin-right: 16px;
+      font-weight: 300;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 400;
+      color: #333;
     }
 
     .container {
+      padding: 0;
       background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 1200px;
-      margin: 0 auto;
     }
 
-    h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-      font-size: 28px;
-    }
-
-    .content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      margin-top: 20px;
-    }
-
-    .section {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .section h2 {
-      font-size: 18px;
-      margin-bottom: 15px;
-      color: #555;
+    .video-section {
+      background: white;
+      padding: 24px 16px;
     }
 
     .video-container {
       position: relative;
       width: 100%;
-      border-radius: 10px;
+      aspect-ratio: 9/10;
+      border-radius: 0;
       overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      background: #000;
+      background: #f8f8f8;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scan-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      aspect-ratio: 1;
+      z-index: 2;
+    }
+
+    .corner-line {
+      position: absolute;
+      background: #5BC4A5;
+    }
+
+    .corner-line.tl-v {
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 60px;
+    }
+
+    .corner-line.tl-h {
+      top: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+    }
+
+    .corner-line.tr-v {
+      top: 0;
+      right: 0;
+      width: 3px;
+      height: 60px;
+    }
+
+    .corner-line.tr-h {
+      top: 0;
+      right: 0;
+      width: 60px;
+      height: 3px;
+    }
+
+    .corner-line.bl-v {
+      bottom: 0;
+      left: 0;
+      width: 3px;
+      height: 60px;
+    }
+
+    .corner-line.bl-h {
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+    }
+
+    .corner-line.br-v {
+      bottom: 0;
+      right: 0;
+      width: 3px;
+      height: 60px;
+    }
+
+    .corner-line.br-h {
+      bottom: 0;
+      right: 0;
+      width: 60px;
+      height: 3px;
+    }
+
+    .center-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: #5BC4A5;
+      transform: translateY(-50%);
+    }
+
+    .face-placeholder {
+      position: relative;
+      z-index: 1;
+    }
+
+    .face-head {
+      width: 120px;
+      height: 100px;
+      background: #F5DEB3;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      position: relative;
+      margin: 0 auto;
+    }
+
+    .hair {
+      width: 100px;
+      height: 50px;
+      background: #5F6876;
+      position: absolute;
+      top: -5px;
+      left: 10px;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+
+    .hair::after {
+      content: '';
+      width: 60px;
+      height: 40px;
+      background: #5F6876;
+      position: absolute;
+      top: 10px;
+      right: -15px;
+      border-radius: 0 80% 80% 0;
+      transform: rotate(-20deg);
+    }
+
+    .eye {
+      width: 8px;
+      height: 8px;
+      background: #333;
+      border-radius: 50%;
+      position: absolute;
+      top: 48px;
+    }
+
+    .eye.left {
+      left: 35px;
+    }
+
+    .eye.right {
+      right: 35px;
+    }
+
+    .nose {
+      width: 20px;
+      height: 3px;
+      background: #F5DEB3;
+      border: 2px solid #E5CEB3;
+      border-bottom: none;
+      border-radius: 50% 50% 0 0;
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .mouth {
+      width: 24px;
+      height: 12px;
+      border: 2px solid #333;
+      border-top: none;
+      border-radius: 0 0 50% 50%;
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .neck {
+      width: 50px;
+      height: 20px;
+      background: #F5DEB3;
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .body {
+      width: 80px;
+      height: 60px;
+      background: #B8BEC5;
+      position: relative;
+      margin: 20px auto 0;
+      clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+    }
+
+    .collar {
+      width: 40px;
+      height: 30px;
+      background: white;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
     }
 
     #video {
       width: 100%;
-      height: auto;
-      display: block;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     #canvas {
       position: absolute;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
     }
 
-    .reference-container {
+    .divider {
+      height: 1px;
+      background: #e5e5e5;
+      margin: 0 16px 24px;
+    }
+
+    .instructions {
+      padding: 0 16px 32px;
+      background: white;
+    }
+
+    .instruction-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      font-size: 15px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .instruction-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .tips-section {
+      display: flex;
+      justify-content: space-around;
+      padding: 0 16px 32px;
+      background: white;
+    }
+
+    .tip-item {
+      text-align: center;
+      flex: 1;
       position: relative;
+    }
+
+    .tip-icon-wrapper {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 10px;
+      position: relative;
+    }
+
+    .tip-icon {
       width: 100%;
-      min-height: 200px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      background: #e9ecef;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    #referenceImg {
-      max-width: 100%;
-      max-height: 400px;
-      display: none;
+    .tip-icon svg {
+      width: 48px;
+      height: 48px;
     }
 
-    #referenceCanvas {
+    .tip-check {
       position: absolute;
-      top: 0;
-      left: 114px;
-    }
-
-    .upload-area {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .controls {
+      bottom: 2px;
+      right: 2px;
+      width: 24px;
+      height: 24px;
+      background: #5BC4A5;
+      border-radius: 50%;
       display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 10px;
-      margin-top: 15px;
-      flex-wrap: wrap;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
     }
 
-    button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .tip-label {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .button-section {
+      padding: 0 16px 32px;
+      background: white;
+    }
+
+    .start-button {
+      width: 100%;
+      background: #5BC4A5;
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 25px;
+      padding: 16px;
+      border-radius: 24px;
+      font-size: 17px;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: bold;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s;
     }
 
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    .start-button:active {
+      opacity: 0.8;
+      transform: scale(0.98);
     }
 
-    button:active {
-      transform: translateY(0);
-    }
-
-    button:disabled {
+    .start-button:disabled {
       background: #ccc;
       cursor: not-allowed;
-      transform: none;
     }
 
-    .secondary {
-      background: #6c757d;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .status {
-      text-align: center;
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .loading {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .ready {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .error {
-      background: #f8d7da;
-      color: #721c24;
+    .start-button.active {
+      background: #f44336;
     }
 
     .match-result {
-      margin-top: 15px;
-      padding: 15px;
+      margin-top: 16px;
+      padding: 14px;
       border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 15px;
+      font-weight: 500;
       text-align: center;
       display: none;
     }
 
     .match {
-      background: #d4edda;
-      color: #155724;
+      background: #E8F5E9;
+      color: #2E7D32;
       display: block;
     }
 
     .no-match {
-      background: #f8d7da;
-      color: #721c24;
+      background: #FFEBEE;
+      color: #C62828;
       display: block;
     }
 
     .checking {
-      background: #d1ecf1;
-      color: #0c5460;
+      background: #E3F2FD;
+      color: #1565C0;
       display: block;
     }
 
-    @media (max-width: 768px) {
-      .content {
-        grid-template-columns: 1fr;
-      }
+    .status-message {
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 14px;
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    .status-message.ready {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status-message.error {
+      background: #FFEBEE;
+      color: #C62828;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>🎭 人脸识别与比对</h1>
-
-    <div id="status" class="status loading">正在加载模型...</div>
-
-    <div class="content">
-      <div class="section">
-        <h2>📷 实时摄像头</h2>
-        <div class="video-container">
-          <video id="video" autoplay muted></video>
-          <canvas id="canvas"></canvas>
-        </div>
-        <div class="controls">
-          <button id="startBtn" disabled>开启摄像头</button>
-          <button id="stopBtn" disabled>关闭摄像头</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>🖼️ 参考照片</h2>
-        <div class="reference-container" id="referenceContainer">
-          <div class="upload-area" id="uploadArea">
-            <p>📁 点击下方按钮上传参考人脸照片</p>
-          </div>
-          <img id="referenceImg" alt="参考照片">
-          <canvas id="referenceCanvas"></canvas>
-        </div>
-        <div class="controls">
-          <button onclick="document.getElementById('fileInput').click()">上传照片</button>
-          <button class="secondary" id="clearBtn" disabled>清除照片</button>
-        </div>
-        <input type="file" id="fileInput" accept="image/*">
-        <div id="matchResult" class="match-result"></div>
-      </div>
+  <div class="status-bar">
+    <div class="signal-icons">
+      <span style="font-size: 12px;">⚫⚫⚫⚫ ◀</span>
+    </div>
+    <div style="font-weight: 500;">9:41 AM</div>
+    <div class="battery">
+      <span style="font-size: 12px;">100%</span>
+      <span style="font-size: 16px;">🔋</span>
     </div>
   </div>
+
+  <div class="header">
+    <span class="back-btn">‹</span>
+    <span class="header-title">人脸识别</span>
+  </div>
+
+  <div id="statusMessage" class="status-message">正在加载模型...</div>
+
+  <div class="container">
+    <div class="video-section">
+      <div class="video-container">
+        <div class="scan-frame">
+          <div class="corner-line tl-v"></div>
+          <div class="corner-line tl-h"></div>
+          <div class="corner-line tr-v"></div>
+          <div class="corner-line tr-h"></div>
+          <div class="corner-line bl-v"></div>
+          <div class="corner-line bl-h"></div>
+          <div class="corner-line br-v"></div>
+          <div class="corner-line br-h"></div>
+          <div class="center-line"></div>
+        </div>
+
+        <div class="face-placeholder">
+          <div class="face-head">
+            <div class="hair"></div>
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="nose"></div>
+            <div class="mouth"></div>
+            <div class="neck"></div>
+          </div>
+          <div class="body">
+            <div class="collar"></div>
+          </div>
+        </div>
+
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="instructions">
+      <div class="instruction-item">
+        1.请确认由本人亲自操作；
+      </div>
+      <div class="instruction-item">
+        2.请讲脸置于提示框内，并按提示完成动作。
+      </div>
+    </div>
+
+    <div class="tips-section">
+      <div class="tip-item">
+        <div class="tip-icon-wrapper">
+          <div class="tip-icon">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="4" width="32" height="40" rx="3" fill="#E0E0E0" />
+              <rect x="10" y="6" width="28" height="36" rx="2" fill="white" />
+              <circle cx="24" cy="10" r="1.5" fill="#999" />
+              <path d="M20 28 L24 32 L28 28" stroke="#5BC4A5" stroke-width="2" stroke-linecap="round" fill="none" />
+              <circle cx="20" cy="22" r="2" fill="#666" />
+              <circle cx="28" cy="22" r="2" fill="#666" />
+            </svg>
+          </div>
+          <div class="tip-check">✓</div>
+        </div>
+        <div class="tip-label">正对手机</div>
+      </div>
+
+      <div class="tip-item">
+        <div class="tip-icon-wrapper">
+          <div class="tip-icon">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="10" y="8" width="28" height="32" rx="2" fill="#FFF9C4" />
+              <circle cx="24" cy="24" r="8" fill="#FFEB3B" />
+              <path
+                d="M24 10 L24 6 M24 42 L24 38 M38 24 L42 24 M6 24 L10 24 M34.5 13.5 L37.5 10.5 M10.5 37.5 L13.5 34.5 M34.5 34.5 L37.5 37.5 M10.5 10.5 L13.5 13.5"
+                stroke="#FDD835" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="tip-check">✓</div>
+        </div>
+        <div class="tip-label">光线充足</div>
+      </div>
+
+      <div class="tip-item">
+        <div class="tip-icon-wrapper">
+          <div class="tip-icon">
+            <svg viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="20" r="12" fill="#FFE0B2" />
+              <circle cx="20" cy="18" r="2" fill="#333" />
+              <circle cx="28" cy="18" r="2" fill="#333" />
+              <path d="M20 24 Q24 26 28 24" stroke="#333" stroke-width="1.5" fill="none" />
+              <path d="M24 32 L24 36" stroke="#999" stroke-width="2" stroke-linecap="round" />
+              <path d="M20 36 L28 36" stroke="#999" stroke-width="2" stroke-linecap="round" />
+              <path d="M22 36 L22 40 M26 36 L26 40" stroke="#999" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="tip-check">✓</div>
+        </div>
+        <div class="tip-label">放慢动作</div>
+      </div>
+    </div>
+
+    <div class="button-section">
+      <button id="startBtn" class="start-button" disabled>开始检测</button>
+      <div id="matchResult" class="match-result"></div>
+    </div>
+  </div>
+
+  <img id="referenceImg" style="display: none;" crossorigin="anonymous">
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const referenceImg = document.getElementById('referenceImg');
-    const referenceCanvas = document.getElementById('referenceCanvas');
-    const statusDiv = document.getElementById('status');
+    const statusMessage = document.getElementById('statusMessage');
     const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const fileInput = document.getElementById('fileInput');
-    const uploadArea = document.getElementById('uploadArea');
     const matchResult = document.getElementById('matchResult');
 
     let stream = null;
     let isDetecting = false;
     let referenceFaceDescriptor = null;
 
-    // 加载模型
+    const REFERENCE_IMAGE_URL = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop';
+
     async function loadModels() {
       const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
 
       try {
-        statusDiv.textContent = '正在加载人脸检测模型...';
+        statusMessage.textContent = '正在加载人脸检测模型...';
         await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
 
-        statusDiv.textContent = '正在加载特征点模型...';
+        statusMessage.textContent = '正在加载特征点模型...';
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
 
-        statusDiv.textContent = '正在加载人脸识别模型...';
+        statusMessage.textContent = '正在加载人脸识别模型...';
         await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
 
-        statusDiv.className = 'status ready';
-        statusDiv.textContent = '✓ 模型加载完成！请上传参考照片并开启摄像头';
+        statusMessage.textContent = '正在加载参考人脸...';
+        await loadReferenceImage();
+
+        statusMessage.className = 'status-message ready';
+        statusMessage.textContent = '✓ 准备就绪，点击按钮开始检测';
         startBtn.disabled = false;
       } catch (error) {
-        statusDiv.className = 'status error';
-        statusDiv.textContent = '✗ 模型加载失败: ' + error.message;
+        statusMessage.className = 'status-message error';
+        statusMessage.textContent = '✗ 初始化失败: ' + error.message;
         console.error('Error loading models:', error);
       }
     }
 
-    // 处理上传的照片
-    fileInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
+    async function loadReferenceImage() {
+      return new Promise(async (resolve, reject) => {
+        referenceImg.src = REFERENCE_IMAGE_URL;
 
+        referenceImg.onload = async () => {
+          try {
+            await referenceImg.decode();
 
-      if (!file) return;
+            const detection = await faceapi
+              .detectSingleFace(referenceImg)
+              .withFaceLandmarks()
+              .withFaceDescriptor();
 
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        referenceImg.src = event.target.result;
-        referenceImg.style.display = 'block';
-        uploadArea.classList.add('hidden');
-        clearBtn.disabled = false;
+            if (detection) {
+              referenceFaceDescriptor = detection.descriptor;
+              console.log('参考人脸特征已提取');
+              resolve();
+            } else {
+              reject(new Error('参考图片中未检测到人脸'));
+            }
+          } catch (error) {
+            reject(error);
+          }
+        };
 
-        await processReferenceImage();
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // 处理参考照片
-    async function processReferenceImage() {
-
-
-      try {
-        matchResult.className = 'match-result checking';
-        matchResult.textContent = '正在分析参考照片...';
-        await referenceImg.decode();
-
-        const detection = await faceapi
-          .detectSingleFace(referenceImg)
-          .withFaceLandmarks()
-          .withFaceDescriptor();
-
-
-        if (detection) {
-          referenceFaceDescriptor = detection.descriptor;
-
-          // 绘制检测结果
-          const displaySize = { width: referenceImg.width, height: referenceImg.height };
-          referenceCanvas.width = displaySize.width;
-          referenceCanvas.height = displaySize.height;
-
-          const resizedDetection = faceapi.resizeResults(detection, displaySize);
-          faceapi.draw.drawDetections(referenceCanvas, resizedDetection);
-          faceapi.draw.drawFaceLandmarks(referenceCanvas, resizedDetection);
-
-          matchResult.style.display = 'block';
-          matchResult.className = 'match-result ready';
-          matchResult.textContent = '✓ 参考人脸已识别，可以开始比对';
-
-          console.log('参考人脸特征已提取');
-        } else {
-
-          const ctx = referenceCanvas.getContext('2d');
-          ctx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
-
-          matchResult.style.display = 'block';
-          matchResult.className = 'match-result error';
-          matchResult.textContent = '✗ 未在照片中检测到人脸，请重新上传';
-          referenceFaceDescriptor = null;
-        }
-      } catch (error) {
-
-        const ctx = referenceCanvas.getContext('2d');
-        ctx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
-
-        matchResult.style.display = 'block';
-        console.error('处理参考照片错误:', error);
-        matchResult.className = 'match-result error';
-        matchResult.textContent = '✗ 处理照片失败: ' + error.message;
-      }
+        referenceImg.onerror = () => {
+          reject(new Error('参考图片加载失败'));
+        };
+      });
     }
 
-    // 清除参考照片
-    clearBtn.addEventListener('click', () => {
-      referenceImg.src = '';
-      referenceImg.style.display = 'none';
-      uploadArea.classList.remove('hidden');
-      clearBtn.disabled = true;
-      referenceFaceDescriptor = null;
-      matchResult.style.display = 'none';
-
-      const ctx = referenceCanvas.getContext('2d');
-      ctx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
-
-      fileInput.value = '';
-    });
-
-    // 开启摄像头
     async function startVideo() {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480 }
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user'
+          }
         });
         video.srcObject = stream;
 
@@ -399,24 +670,26 @@
           video.oncanplay = () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
             resolve();
           };
         });
 
-        startBtn.disabled = true;
-        stopBtn.disabled = false;
+        video.style.display = 'block';
+        canvas.style.display = 'block';
+        document.querySelector('.face-placeholder').style.display = 'none';
+
+        startBtn.textContent = '停止检测';
+        startBtn.classList.add('active');
 
         isDetecting = true;
         detectFaces();
       } catch (error) {
-        statusDiv.className = 'status error';
-        statusDiv.textContent = '✗ 无法访问摄像头: ' + error.message;
+        statusMessage.className = 'status-message error';
+        statusMessage.textContent = '✗ 无法访问摄像头';
         console.error('Error accessing webcam:', error);
       }
     }
 
-    // 停止摄像头
     function stopVideo() {
       isDetecting = false;
       if (stream) {
@@ -424,19 +697,19 @@
         video.srcObject = null;
       }
 
+      video.style.display = 'none';
+      canvas.style.display = 'none';
+      document.querySelector('.face-placeholder').style.display = 'block';
+
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
+      startBtn.textContent = '开始检测';
+      startBtn.classList.remove('active');
 
-      if (referenceFaceDescriptor) {
-        matchResult.className = 'match-result';
-        matchResult.textContent = '摄像头已关闭';
-      }
+      matchResult.style.display = 'none';
     }
 
-    // 人脸检测与比对
     async function detectFaces() {
       if (!isDetecting) return;
 
@@ -456,57 +729,47 @@
 
         if (detections.length > 0) {
           const resizedDetections = faceapi.resizeResults(detections, {
-            width: canvas.width - 120,
-            height: canvas.height - 90
+            width: canvas.width + 30,
+            height: canvas.height
           });
 
-          faceapi.draw.drawDetections(canvas, resizedDetections);
+          // faceapi.draw.drawDetections(canvas, resizedDetections);
           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-          // 如果有参考人脸，进行比对
-          if (referenceFaceDescriptor) {
-            let bestMatch = null;
-            let bestDistance = 1;
+          let bestMatch = null;
+          let bestDistance = 1;
 
-            resizedDetections.forEach(detection => {
-              const distance = faceapi.euclideanDistance(
-                referenceFaceDescriptor,
-                detection.descriptor
-              );
+          // resizedDetections.forEach(detection => {
+          //   const distance = faceapi.euclideanDistance(
+          //     referenceFaceDescriptor,
+          //     detection.descriptor
+          //   );
 
-              if (distance < bestDistance) {
-                bestDistance = distance;
-                bestMatch = detection;
-              }
+          //   if (distance < bestDistance) {
+          //     bestDistance = distance;
+          //     bestMatch = detection;
+          //   }
 
-              // 在人脸框上显示相似度
-              const similarity = ((1 - distance) * 100).toFixed(1);
-              const box = detection.detection.box;
-              const drawBox = new faceapi.draw.DrawBox(box, {
-                label: `相似度: ${similarity}%`
-              });
-              drawBox.draw(canvas);
-            });
+          //   // const similarity = ((1 - distance) * 100).toFixed(1);
+          //   // const box = detection.detection.box;
+          //   // const drawBox = new faceapi.draw.DrawBox(box, {
+          //   //   label: `相似度: ${similarity}%`,
+          //   //   lineWidth: 2
+          //   // });
+          //   // drawBox.draw(canvas);
+          // });
 
-            // 阈值：0.6 以下认为是同一个人
-            console.log(bestDistance)
-            if (bestDistance < 0.6) {
-              const similarity = ((1 - bestDistance) * 100).toFixed(1);
-              matchResult.className = 'match-result match';
-              matchResult.textContent = `✓ 匹配成功！相似度: ${similarity}%`;
-            } else {
-              matchResult.className = 'match-result no-match';
-              matchResult.textContent = `✗ 未匹配 (相似度过低)`;
-            }
+          if (bestDistance < 0.6) {
+            const similarity = ((1 - bestDistance) * 100).toFixed(1);
+            matchResult.className = 'match-result match';
+            matchResult.textContent = `✓ 匹配成功！相似度: ${similarity}%`;
           } else {
-            matchResult.className = 'match-result checking';
-            matchResult.textContent = `检测到 ${detections.length} 张人脸，请先上传参考照片`;
+            matchResult.className = 'match-result no-match';
+            matchResult.textContent = `✗ 人脸不匹配`;
           }
         } else {
-          if (referenceFaceDescriptor) {
-            matchResult.className = 'match-result checking';
-            matchResult.textContent = '未检测到人脸';
-          }
+          matchResult.className = 'match-result checking';
+          matchResult.textContent = `未检测到人脸，请调整位置`;
         }
       } catch (error) {
         console.error('Detection error:', error);
@@ -515,17 +778,18 @@
       requestAnimationFrame(detectFaces);
     }
 
-    // 事件监听
-    startBtn.addEventListener('click', startVideo);
-    stopBtn.addEventListener('click', stopVideo);
+    startBtn.addEventListener('click', () => {
+      if (!isDetecting) {
+        startVideo();
+      } else {
+        stopVideo();
+      }
+    });
 
-    // 等待加载
     function waitForFaceAPI() {
       if (typeof faceapi !== 'undefined') {
-        console.log('face-api.js loaded successfully');
         loadModels();
       } else {
-        console.log('Waiting for face-api.js...');
         setTimeout(waitForFaceAPI, 200);
       }
     }
@@ -535,87 +799,7 @@
     } else {
       waitForFaceAPI();
     }
-
-    document.onkeydown = function (e) {
-      // 禁用 F12
-      if (e.key === 'F12' || e.keyCode === 123) {
-        return false;
-      }
-
-      // 禁用 Ctrl+Shift+I (查看元素/检查)
-      if (e.ctrlKey && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.keyCode === 73)) {
-        return false;
-      }
-
-      // 禁用 Ctrl+Shift+J (Console)
-      if (e.ctrlKey && e.shiftKey && (e.key === 'j' || e.key === 'J' || e.keyCode === 74)) {
-        return false;
-      }
-
-      // 禁用 Ctrl+U (查看源码)
-      if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) {
-        return false;
-      }
-    };
-
-    document.oncontextmenu = function () {
-      alert("禁止右键操作!");
-      return false; // 禁用右键菜单的默认行为
-    };
-
-    (function () {
-      function block() {
-        if (window.devtools) { // 某些库的检测变量
-          // 执行阻止操作
-        }
-        // 不断调用 debugger，让调试器一直暂停
-        (function loop() {
-          debugger;
-          setTimeout(loop, 1);
-        })();
-      }
-      block();
-    })();
-
-
-    /**
- * 核心方法：检查开发者工具是否打开
- */
-    function checkDevTools() {
-      // 浏览器外部和内部尺寸差异的阈值。
-      // 当 DevTools 开启并停靠在主窗口时，这个差异会增大。
-      const threshold = 160;
-
-      // 检查宽度或高度差异是否超过阈值
-      if (window.outerWidth - window.innerWidth > threshold ||
-        window.outerHeight - window.innerHeight > threshold) {
-
-        handleDevToolsOpen(); // 发现 DevTools 开启，执行处理函数
-      } else {
-        // 如果 DevTools 关闭后需要恢复页面的话，可以在这里处理
-        // restorePage();
-      }
-    }
-
-    /**
-     * 开发者工具开启时的处理逻辑
-     */
-    function handleDevToolsOpen() {
-      console.log("开发者工具已开启!");
-      // *** 执行阻止/干扰操作 ***
-      document.body.innerHTML = '<h1>检测到开发者工具已开启，请关闭后刷新页面。</h1><p>请尊重网站的版权和隐私。</p>';
-    }
-
-    // 1. 页面加载完成后立即检查
-    //window.onload = checkDevTools;
-
-    // 2. 窗口大小变化时检查 (用户打开/关闭 DevTools时会触发)
-    //window.onresize = checkDevTools;
-
-    // 3. (可选) 设置定时器持续检查，以防用户分离 DevTools 窗口
-    // setInterval(checkDevTools, 500);
   </script>
 </body>
 
 </html>
-
