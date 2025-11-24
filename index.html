@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>人脸识别</title>
   <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
   <style>
     * {
       margin: 0;
@@ -433,6 +434,7 @@
       cursor: not-allowed;
     }
 
+    /* active 状态用于显示 "停止检测" 按钮 (红色) */
     .start-button.active {
       background: #f44336;
     }
@@ -447,24 +449,7 @@
       display: none;
     }
 
-    .match {
-      background: #E8F5E9;
-      color: #2E7D32;
-      display: block;
-    }
-
-    .no-match {
-      background: #FFEBEE;
-      color: #C62828;
-      display: block;
-    }
-
-    .checking {
-      background: #E3F2FD;
-      color: #1565C0;
-      display: block;
-    }
-
+    /* 状态消息栏的样式 */
     .status-message {
       text-align: center;
       padding: 12px 16px;
@@ -486,22 +471,6 @@
 </head>
 
 <body>
-  <div class="status-bar">
-    <div class="signal-icons">
-      <span style="font-size: 12px;">⚫⚫⚫⚫ ◀</span>
-    </div>
-    <div style="font-weight: 500;">9:41 AM</div>
-    <div class="battery">
-      <span style="font-size: 12px;">100%</span>
-      <span style="font-size: 16px;">🔋</span>
-    </div>
-  </div>
-
-  <div class="header">
-    <span class="back-btn">‹</span>
-    <span class="header-title">人脸识别</span>
-  </div>
-
   <div id="statusMessage" class="status-message">正在加载模型...</div>
 
   <div class="container">
@@ -519,20 +488,87 @@
           <div class="center-line"></div>
         </div>
 
-        <div class="face-placeholder">
-          <div class="face-head">
-            <div class="hair"></div>
-            <div class="eye left"></div>
-            <div class="eye right"></div>
-            <div class="nose"></div>
-            <div class="mouth"></div>
-            <div class="neck"></div>
-          </div>
-          <div class="body">
-            <div class="collar"></div>
-          </div>
-        </div>
+        <div id="facePlaceholder" class="face-placeholder" style=" padding: 20px; border-radius: 10px;">
+          <svg viewBox="0 0 280 320" style="width: 200px; height: auto; display: block; margin: 0 auto;">
+            <defs>
+              <linearGradient id="shieldGradModern" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#1E88E5;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#0D47A1;stop-opacity:1" />
+              </linearGradient>
 
+              <rect id="scannerLine" x="80" y="100" width="120" height="2" fill="url(#scannerGrad)">
+                <animate attributeName="y" values="100; 220; 100" dur="2s" repeatCount="indefinite" />
+              </rect>
+
+              <linearGradient id="scannerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#42A5F5;stop-opacity:0" />
+                <stop offset="50%" style="stop-color:#81D4FA;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#42A5F5;stop-opacity:0" />
+              </linearGradient>
+
+              <filter id="glow">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <path d="M140 20 L250 70 L250 160 Q250 240 140 300 Q30 240 30 160 L30 70 Z" fill="url(#shieldGradModern)"
+              stroke="#00B0FF" stroke-width="4" filter="url(#glow)" />
+
+            <rect x="90" y="100" width="100" height="120" rx="12" fill="none" stroke="#81D4FA" stroke-width="1.5"
+              opacity="0.5" filter="url(#glow)" />
+
+            <line x1="90" y1="115" x2="90" y2="100" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+            <line x1="90" y1="100" x2="105" y2="100" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+
+            <line x1="190" y1="100" x2="175" y2="100" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+            <line x1="190" y1="100" x2="190" y2="115" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+
+            <line x1="90" y1="205" x2="90" y2="220" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+            <line x1="90" y1="220" x2="105" y2="220" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+
+            <line x1="175" y1="220" x2="190" y2="220" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+            <line x1="190" y1="220" x2="190" y2="205" stroke="#81D4FA" stroke-width="4" stroke-linecap="round"
+              filter="url(#glow)" />
+
+            <use href="#scannerLine" />
+
+            <circle cx="140" cy="155" r="30" fill="#F5CBA7" stroke="#37474F" stroke-width="1" />
+
+            <path d="M108 150 Q110 120 140 125 Q170 120 172 150 L168 150 Q168 135 140 132 Q112 135 112 150 Z"
+              fill="#263238" />
+
+            <ellipse cx="108" cy="158" rx="4" ry="9" fill="#E2B895" />
+            <ellipse cx="172" cy="158" rx="4" ry="9" fill="#E2B895" />
+
+            <ellipse cx="128" cy="152" rx="3.5" ry="4.5" fill="#263238" />
+            <ellipse cx="152" cy="152" rx="3.5" ry="4.5" fill="#263238" />
+
+            <path d="M122 145 Q128 143 133 144" stroke="#263238" stroke-width="2" fill="none" stroke-linecap="round" />
+            <path d="M147 144 Q152 143 158 145" stroke="#263238" stroke-width="2" fill="none" stroke-linecap="round" />
+
+            <path d="M132 175 Q140 180 148 175" stroke="#263238" stroke-width="2" fill="none" stroke-linecap="round" />
+
+            <rect x="128" y="185" width="24" height="14" rx="3" fill="#F5CBA7" />
+
+            <path d="M110 199 L128 199 L128 210 Q128 220 140 225 Q152 220 152 210 L152 199 L170 199 L175 240 L105 240 Z"
+              fill="#1565C0" />
+
+            <path d="M140 199 L133 210 L140 225 L147 210 Z" fill="#0D47A1" />
+
+            <path d="M128 199 L135 210 L140 203 L145 210 L152 199" fill="white" opacity="1" />
+          </svg>
+        </div>
         <video id="video" autoplay muted playsinline></video>
         <canvas id="canvas"></canvas>
         <div id="videoOverlay" class="video-overlay"></div>
@@ -546,7 +582,7 @@
         1.请确认由本人亲自操作；
       </div>
       <div class="instruction-item">
-        2.请讲脸置于提示框内，并按提示完成动作。
+        2.请将脸置于提示框内，并按提示完成动作。
       </div>
     </div>
 
@@ -617,29 +653,32 @@
     const referenceImg = document.getElementById('referenceImg');
     const statusMessage = document.getElementById('statusMessage');
     const startBtn = document.getElementById('startBtn');
-    const matchResult = document.getElementById('matchResult');
     const videoOverlay = document.getElementById('videoOverlay');
+    const facePlaceholder = document.getElementById('facePlaceholder');
 
     let stream = null;
     let isDetecting = false;
     let referenceFaceDescriptor = null;
 
+    // Face-API 模型的公共 CDN 路径
+    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+    // !!! 请替换为您自己的参考照片 URL !!!
     const REFERENCE_IMAGE_URL = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop';
+    // 匹配阈值 (越小越严格, 0.6 是常见默认值)
+    const MATCH_THRESHOLD = 0.6;
 
-    async function loadModels() {
-      const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
-
+    /**
+     * 1. 加载 Face-API 模型和参考人脸特征
+     */
+    async function loadModelsAndReference() {
       try {
         statusMessage.textContent = '正在加载人脸检测模型...';
+        // 依次加载必要的模型
         await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-
-        statusMessage.textContent = '正在加载特征点模型...';
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-
-        statusMessage.textContent = '正在加载人脸识别模型...';
         await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
 
-        statusMessage.textContent = '正在加载参考人脸...';
+        statusMessage.textContent = '正在提取参考人脸特征...';
         await loadReferenceImage();
 
         statusMessage.className = 'status-message ready';
@@ -647,13 +686,16 @@
         startBtn.disabled = false;
       } catch (error) {
         statusMessage.className = 'status-message error';
-        statusMessage.textContent = '✗ 初始化失败: ' + error.message;
-        console.error('Error loading models:', error);
+        statusMessage.textContent = `✗ 初始化失败: ${error.message}`;
+        console.error('模型加载或参考人脸提取失败:', error);
       }
     }
 
+    /**
+     * 2. 提取参考图片的人脸描述符
+     */
     async function loadReferenceImage() {
-      return new Promise(async (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         referenceImg.src = REFERENCE_IMAGE_URL;
 
         referenceImg.onload = async () => {
@@ -667,24 +709,34 @@
 
             if (detection) {
               referenceFaceDescriptor = detection.descriptor;
-              console.log('参考人脸特征已提取');
+              console.log('参考人脸特征已提取完成');
               resolve();
             } else {
-              reject(new Error('参考图片中未检测到人脸'));
+              reject(new Error('参考图片中未检测到清晰人脸'));
             }
           } catch (error) {
-            reject(error);
+            reject(new Error('提取参考特征时发生错误: ' + error.message));
           }
         };
 
         referenceImg.onerror = () => {
-          reject(new Error('参考图片加载失败'));
+          reject(new Error('参考图片加载失败 (URL可能无效或跨域问题)'));
         };
       });
     }
 
+    /**
+     * 3. 启动摄像头并开始检测
+     */
     async function startVideo() {
+      if (!referenceFaceDescriptor) {
+        statusMessage.className = 'status-message error';
+        statusMessage.textContent = '✗ 错误: 参考人脸数据未准备好。';
+        return;
+      }
+
       try {
+        // 获取摄像头视频流，使用前置摄像头
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
             width: { ideal: 640 },
@@ -694,67 +746,71 @@
         });
         video.srcObject = stream;
 
-        await new Promise((resolve) => {
-          video.onloadedmetadata = () => {
-            video.play();
-            resolve();
-          };
+        // 等待视频元数据加载和播放
+        await new Promise(resolve => video.onloadedmetadata = () => {
+          video.play();
+          resolve();
         });
 
-        await new Promise((resolve) => {
-          video.oncanplay = () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            resolve();
-          };
-        });
+        // 必须在视频加载完成后设置 Canvas 的实际分辨率，以保证绘图准确
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
+        // 切换 UI 状态
         video.style.display = 'block';
         canvas.style.display = 'block';
-        document.querySelector('.face-placeholder').style.display = 'none';
+        facePlaceholder.style.display = 'none';
 
         startBtn.textContent = '停止检测';
         startBtn.classList.add('active');
 
         isDetecting = true;
-        detectFaces();
+        detectFaces(); // 启动人脸检测循环
       } catch (error) {
         statusMessage.className = 'status-message error';
-        statusMessage.textContent = '✗ 无法访问摄像头';
-        console.error('Error accessing webcam:', error);
+        statusMessage.textContent = '✗ 无法访问摄像头，请检查权限。';
+        console.error('启动摄像头失败:', error);
       }
     }
 
+    /**
+     * 4. 停止视频流和检测循环
+     */
     function stopVideo() {
       isDetecting = false;
       if (stream) {
+        // 停止所有轨道 (摄像头)
         stream.getTracks().forEach(track => track.stop());
         video.srcObject = null;
       }
 
+      // 切换 UI 状态
       video.style.display = 'none';
       canvas.style.display = 'none';
       videoOverlay.style.display = 'none';
-      document.querySelector('.face-placeholder').style.display = 'block';
+      facePlaceholder.style.display = 'block';
 
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       startBtn.textContent = '开始检测';
       startBtn.classList.remove('active');
-
-      matchResult.style.display = 'none';
     }
 
+    /**
+     * 5. 持续人脸检测和比对的核心循环
+     */
     async function detectFaces() {
       if (!isDetecting) return;
 
-      if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+      // 仅在视频帧数据可用时进行检测
+      if (video.readyState < video.HAVE_ENOUGH_DATA) {
         requestAnimationFrame(detectFaces);
         return;
       }
 
       try {
+        // 进行人脸检测、特征点和描述符提取
         const detections = await faceapi
           .detectAllFaces(video)
           .withFaceLandmarks()
@@ -764,17 +820,19 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (detections.length > 0) {
+          // 将检测结果尺寸重新调整到 Canvas 的显示尺寸
           const resizedDetections = faceapi.resizeResults(detections, {
-            width: canvas.width + 30,
+            width: canvas.width,
             height: canvas.height
           });
 
+          // 在 Canvas 上绘制人脸特征点
           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-          let bestMatch = null;
-          let bestDistance = 1;
+          let bestDistance = Infinity; // 初始距离设为最大
 
           resizedDetections.forEach(detection => {
+            // 计算实时人脸和参考人脸之间的欧氏距离
             const distance = faceapi.euclideanDistance(
               referenceFaceDescriptor,
               detection.descriptor
@@ -782,29 +840,31 @@
 
             if (distance < bestDistance) {
               bestDistance = distance;
-              bestMatch = detection;
             }
           });
 
-          if (bestDistance < 0.6) {
+          // 比较最佳距离与阈值
+          if (bestDistance < MATCH_THRESHOLD) {
             const similarity = ((1 - bestDistance) * 100).toFixed(1);
             videoOverlay.className = 'video-overlay match';
-            videoOverlay.textContent = `✓ 匹配成功！相似度: ${similarity}%`;
+            videoOverlay.textContent = `✅ 匹配成功！相似度: ${similarity}%`;
           } else {
             videoOverlay.className = 'video-overlay no-match';
-            videoOverlay.textContent = `✗ 人脸不匹配`;
+            videoOverlay.textContent = `❌ 人脸不匹配 (距离: ${bestDistance.toFixed(2)})`;
           }
         } else {
           videoOverlay.className = 'video-overlay checking';
           videoOverlay.textContent = `未检测到人脸，请调整位置`;
         }
       } catch (error) {
-        console.error('Detection error:', error);
+        console.error('人脸检测或比对错误:', error);
       }
 
+      // 循环调用
       requestAnimationFrame(detectFaces);
     }
 
+    // 按钮点击事件监听
     startBtn.addEventListener('click', () => {
       if (!isDetecting) {
         startVideo();
@@ -813,19 +873,8 @@
       }
     });
 
-    function waitForFaceAPI() {
-      if (typeof faceapi !== 'undefined') {
-        loadModels();
-      } else {
-        setTimeout(waitForFaceAPI, 200);
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', waitForFaceAPI);
-    } else {
-      waitForFaceAPI();
-    }
+    // 页面加载完成后，立即开始加载模型
+    window.addEventListener('load', loadModelsAndReference);
   </script>
 </body>
 
